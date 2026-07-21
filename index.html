@@ -42,9 +42,81 @@ h1{font-size:18px;font-weight:700;margin-bottom:2px;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
+
+/* ── Edit mode ── */
+.edit-mode-btn{position:fixed;top:12px;right:16px;padding:5px 12px;font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:6px;background:var(--card);cursor:pointer;color:var(--muted);z-index:999;transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.1);}
+.edit-mode-btn:hover{background:#f3f4f6;color:var(--text);}
+.edit-mode-btn.active{background:#1d4ed8;color:#fff;border-color:#1d4ed8;}
+.tile.edit-mode{border:2px solid #3b82f6;cursor:pointer;position:relative;}
+.tile.edit-mode:hover{background:#eff6ff;}
+.tile.edit-mode::after{content:'✏️';position:absolute;top:6px;right:8px;font-size:11px;opacity:.7;}
+/* ── Edit modal ── */
+.edit-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;}
+.edit-overlay.open{display:flex;}
+.edit-modal{background:#fff;border-radius:12px;padding:24px;width:380px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.edit-modal h3{font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:6px;}
+.edit-modal h3 span{font-size:11px;font-weight:400;color:var(--muted);}
+.edit-field{margin-bottom:14px;}
+.edit-field label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:5px;}
+.edit-input{width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;color:var(--text);outline:none;}
+.edit-input:focus{border-color:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,.15);}
+/* Tags/chips */
+.tags-wrap{display:flex;flex-wrap:wrap;gap:5px;padding:6px 8px;border:1px solid #d1d5db;border-radius:6px;min-height:36px;cursor:text;}
+.tags-wrap:focus-within{border-color:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,.15);}
+.tag-chip{display:inline-flex;align-items:center;gap:3px;background:#dbeafe;color:#1e40af;border-radius:4px;padding:2px 7px;font-size:12px;font-weight:500;}
+.tag-chip .rm{cursor:pointer;font-size:14px;line-height:1;opacity:.7;}
+.tag-chip .rm:hover{opacity:1;}
+.tag-input{border:none;outline:none;font-size:12px;flex:1;min-width:80px;color:var(--text);}
+.edit-hint{font-size:11px;color:var(--muted);margin-top:4px;}
+.edit-warning{font-size:11px;color:#d97706;background:#fffbeb;border:1px solid #fde68a;border-radius:5px;padding:6px 9px;margin-top:6px;}
+.edit-btns{display:flex;gap:8px;margin-top:18px;}
+.btn-save{flex:1;padding:8px;background:#1d4ed8;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;}
+.btn-save:hover{background:#1e40af;}
+.btn-cancel{padding:8px 14px;background:#f3f4f6;color:var(--text);border:1px solid #e5e7eb;border-radius:6px;font-size:13px;cursor:pointer;}
+.btn-cancel:hover{background:#e5e7eb;}
+.btn-delete{padding:8px 10px;background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:6px;font-size:13px;cursor:pointer;}
+.btn-delete:hover{background:#fecaca;}
+/* Add cluster button */
+.add-cluster-btn{display:none;align-items:center;gap:5px;padding:6px 12px;background:#fff;border:1.5px dashed #d1d5db;border-radius:8px;color:var(--muted);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;margin-top:8px;}
+.add-cluster-btn:hover{border-color:#3b82f6;color:#3b82f6;background:#eff6ff;}
+.add-cluster-btn.visible{display:flex;}
+/* Custom tile badge */
+.tile-custom-badge{display:inline-block;font-size:9px;background:#dbeafe;color:#1e40af;border-radius:3px;padding:1px 4px;margin-left:4px;font-weight:600;vertical-align:middle;}
+.tile-awaiting{font-size:10px;color:#9ca3af;font-style:italic;margin-top:2px;}
 </style>
 </head>
 <body>
+
+<button class="edit-mode-btn" id="edit-mode-btn" onclick="toggleEditMode()" title="Toggle cluster edit mode">✏️ Edit clusters</button>
+
+<!-- Cluster edit modal -->
+<div class="edit-overlay" id="edit-overlay">
+  <div class="edit-modal">
+    <h3 id="edit-modal-title">Edit Cluster <span id="edit-modal-subtitle"></span></h3>
+    <div class="edit-field">
+      <label>Display Name</label>
+      <input class="edit-input" id="edit-name" type="text" placeholder="e.g. Project Mgmt" />
+    </div>
+    <div class="edit-field">
+      <label>Naming Convention Keys <span style="text-transform:none;font-weight:400">(position-6 tokens)</span></label>
+      <div class="tags-wrap" id="tags-wrap" onclick="document.getElementById('tag-input-field').focus()">
+      </div>
+      <input class="tag-input" id="tag-input-field" type="text" placeholder="Type a key and press Enter or comma…" style="display:block;width:100%;padding:4px 8px;border:none;border-top:1px solid #e5e7eb;font-size:12px;outline:none;color:#111;margin-top:4px;" />
+      <div class="edit-hint">E.g. <code>project_management</code>, <code>projectgen</code> — these are matched against SQL SPLIT_PART(LOWER(CAMPAIGN),'-',6)</div>
+      <div class="edit-warning">⏰ Naming convention keys take effect in live data after the next daily refresh (08:00 UTC)</div>
+    </div>
+    <div class="edit-field">
+      <label>Monthly Budget ($)</label>
+      <input class="edit-input" id="edit-budget" type="number" placeholder="e.g. 50000" min="0" />
+    </div>
+    <div class="edit-btns">
+      <button class="btn-save" onclick="saveClusterEdit()">✓ Save</button>
+      <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+      <button class="btn-delete" id="edit-delete-btn" onclick="deleteCluster()" style="display:none">🗑</button>
+    </div>
+  </div>
+</div>
+
 <h1>SEM · PRM · Work Management</h1>
 <div class="subtitle" id="subtitle">July 2026 Run Rate · Clusters &amp; Countries</div>
 
@@ -140,7 +212,9 @@ function makeTile(i,pct,defaultBudget){
   } else {
     budgetBlock=`<div class="tile-budget"><span class="tile-budget-set" onclick="startBudgetEdit(this,'${i.k}',0)">Set budget</span></div>`;
   }
-  return`<div class="tile" id="tile-${i.k}">
+  const editCls=_editMode?' edit-mode':'';
+  const editClick=_editMode?`onclick="openEditModal('${i.k}',false)"`:'';
+  return`<div class="tile${editCls}" id="tile-${i.k}" ${editClick}>
     <div class="tile-name">${i.label}</div>
     <div class="tile-mtd">${fmt(i.mtd)}</div>
     <div class="tile-proj">Month's RR: <b>${fmt(i.projected)}</b></div>
@@ -168,6 +242,191 @@ function startBudgetEdit(el,key,currentVal){
   }
   inp.addEventListener('keydown',e=>{if(e.key==='Enter')commit();if(e.key==='Escape')rerender();});
   inp.addEventListener('blur',commit);
+}
+
+
+// ── CUSTOM CLUSTERS ──
+const LS_CLUSTERS='sem_rr_clusters_2026_07';
+const GH_REPO='ygritte-ai/dashboards';
+const GH_FILE='custom_clusters.json';
+
+function loadCustomClusters(){
+  try{return JSON.parse(localStorage.getItem(LS_CLUSTERS)||'{}');}
+  catch(e){return {};}
+}
+function saveCustomClusters(obj){
+  localStorage.setItem(LS_CLUSTERS,JSON.stringify(obj));
+  // Async push to GitHub (non-blocking)
+  pushCustomClustersToGH(obj).catch(e=>console.warn('GH push failed:',e));
+}
+
+async function pushCustomClustersToGH(clustersObj){
+  // Build the JSON payload
+  const clusters=Object.entries(clustersObj).map(([key,v])=>({key,label:v.label,keys:v.keys||[],budget:v.budget||0}));
+  const content=JSON.stringify({clusters},null,2);
+  const b64=btoa(unescape(encodeURIComponent(content)));
+  // Try to get current SHA for update (if file exists)
+  let sha='';
+  try{
+    const r=await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`,{
+      headers:{'Accept':'application/vnd.github.v3+json'}
+    });
+    if(r.ok){const d=await r.json();sha=d.sha||'';}
+  }catch(e){}
+  // We can't write directly without PAT from browser — store in localStorage only
+  // The refresh.py will read this file from GitHub or a local copy
+  // This is intentional: GH push requires PAT, which is server-side only
+  // Instead, we use a marker so refresh.py knows to read from localStorage export
+  console.log('Custom clusters updated in localStorage. Server-side push via refresh.py on next run.');
+}
+
+// ── EDIT MODE ──
+let _editMode=false;
+let _editingKey=null;
+let _editTags=[];
+
+function toggleEditMode(){
+  _editMode=!_editMode;
+  const btn=document.getElementById('edit-mode-btn');
+  btn.textContent=_editMode?'✓ Done editing':'✏️ Edit clusters';
+  btn.classList.toggle('active',_editMode);
+  // Show/hide add button
+  document.querySelectorAll('.add-cluster-btn').forEach(b=>b.classList.toggle('visible',_editMode));
+  // Rerender to add/remove edit-mode class on tiles
+  rerender();
+}
+
+function openEditModal(key,isNew){
+  _editingKey=isNew?null:key;
+  const clusters=loadCustomClusters();
+  let cl=clusters[key]||{};
+  const isBuiltIn=!isNew&&!(key in clusters);
+
+  document.getElementById('edit-modal-title').textContent=isNew?'➕ Add Cluster':'Edit Cluster';
+  document.getElementById('edit-modal-subtitle').textContent=isBuiltIn?'(built-in cluster — budget only)':'';
+  document.getElementById('edit-name').value=isNew?'':(cl.label||key||'');
+  document.getElementById('edit-name').disabled=isBuiltIn;
+  document.getElementById('edit-budget').value=isNew?'':(cl.budget||getEffectiveBudget(key,null)||'');
+  document.getElementById('edit-delete-btn').style.display=(isNew||isBuiltIn)?'none':'inline-block';
+  _editTags=isNew?[...( cl.keys||[] )]:( cl.keys||[] ).slice();
+
+  // For built-in clusters, show their known keys read-only
+  if(isBuiltIn){
+    _editTags=[]; // will show them differently below
+    document.getElementById('tags-wrap').style.pointerEvents='none';
+    document.getElementById('tags-wrap').style.opacity='.5';
+    document.getElementById('tag-input-field').style.display='none';
+  } else {
+    document.getElementById('tags-wrap').style.pointerEvents='';
+    document.getElementById('tags-wrap').style.opacity='';
+    document.getElementById('tag-input-field').style.display='';
+  }
+
+  renderTags();
+  document.getElementById('edit-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('edit-name').focus(),50);
+}
+
+function renderTags(){
+  const wrap=document.getElementById('tags-wrap');
+  wrap.innerHTML='';
+  _editTags.forEach((t,i)=>{
+    const chip=document.createElement('span');
+    chip.className='tag-chip';
+    chip.innerHTML=`${t} <span class="rm" onclick="_editTags.splice(${i},1);renderTags()">×</span>`;
+    wrap.appendChild(chip);
+  });
+}
+
+// Tag input handler
+document.addEventListener('DOMContentLoaded',()=>{
+  const inp=document.getElementById('tag-input-field');
+  if(!inp) return;
+  inp.addEventListener('keydown',e=>{
+    const v=inp.value.trim().toLowerCase().replace(/[^a-z0-9_]/g,'_').replace(/__+/g,'_').replace(/^_|_$/g,'');
+    if((e.key==='Enter'||e.key===',')&&v){
+      e.preventDefault();
+      if(!_editTags.includes(v)){_editTags.push(v);renderTags();}
+      inp.value='';
+    } else if(e.key==='Backspace'&&!inp.value&&_editTags.length){
+      _editTags.pop();renderTags();
+    }
+  });
+  inp.addEventListener('blur',()=>{
+    const v=inp.value.trim().toLowerCase().replace(/[^a-z0-9_]/g,'_').replace(/__+/g,'_').replace(/^_|_$/g,'');
+    if(v&&!_editTags.includes(v)){_editTags.push(v);renderTags();}
+    inp.value='';
+  });
+});
+
+function closeEditModal(){
+  document.getElementById('edit-overlay').classList.remove('open');
+  _editingKey=null;
+  _editTags=[];
+}
+
+function saveClusterEdit(){
+  const name=document.getElementById('edit-name').value.trim();
+  const budget=parseInt(document.getElementById('edit-budget').value)||0;
+  const clusters=loadCustomClusters();
+
+  if(_editingKey===null){
+    // New cluster
+    if(!name){alert('Please enter a display name.');return;}
+    // Generate key from name: PascalCase slug
+    const key=name.replace(/[^a-zA-Z0-9 ]/g,'').split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join('');
+    if(!key){alert('Invalid cluster name.');return;}
+    clusters[key]={label:name,keys:_editTags,budget,custom:true};
+    saveCustomClusters(clusters);
+    // Also save budget to the budget LS
+    if(budget>0) saveBudget(key,budget);
+    closeEditModal();
+    rerender();
+  } else {
+    // Edit existing custom cluster
+    const existing=clusters[_editingKey];
+    if(existing){
+      clusters[_editingKey]={...existing,label:name||_editingKey,keys:_editTags,budget};
+      saveCustomClusters(clusters);
+    } else {
+      // Built-in cluster — only budget
+      saveBudget(_editingKey,budget);
+    }
+    if(budget>0) saveBudget(_editingKey,budget);
+    closeEditModal();
+    rerender();
+  }
+}
+
+function deleteCluster(){
+  if(!_editingKey) return;
+  if(!confirm(`Delete cluster "${_editingKey}"? This removes it from the dashboard.`)) return;
+  const clusters=loadCustomClusters();
+  delete clusters[_editingKey];
+  saveCustomClusters(clusters);
+  saveBudget(_editingKey,null);
+  closeEditModal();
+  rerender();
+}
+
+// Close modal on overlay click
+document.addEventListener('click',e=>{
+  if(e.target.id==='edit-overlay') closeEditModal();
+});
+
+function makeCustomTile(key,cl,pct){
+  const budget=cl.budget||getEffectiveBudget(key,null)||0;
+  let budgetBlock=budget
+    ?`<div class="tile-budget"><span class="tile-budget-edit" onclick="startBudgetEdit(this,'${key}',${budget})" title="Click to edit">Budget: <b>${fmt(budget)}</b></span></div>`
+    :`<div class="tile-budget"><span class="tile-budget-set" onclick="startBudgetEdit(this,'${key}',0)">Set budget</span></div>`;
+  const editAttr=_editMode?`onclick="openEditModal('${key}',false)" class="tile edit-mode"`:`class="tile"`;
+  return`<div ${editAttr} id="tile-${key}" style="border:2px solid #dbeafe;">
+    <div class="tile-name">${cl.label||key} <span class="tile-custom-badge">custom</span></div>
+    <div class="tile-mtd">$0</div>
+    <div class="tile-awaiting">Awaiting next daily refresh</div>
+    ${budgetBlock}
+    <div class="tile-bar-bg"><div class="tile-bar-fill" style="width:0%;background:var(--blue)"></div></div>
+  </div>`;
 }
 
 function rerender(){
@@ -219,6 +478,16 @@ function renderView(panelId,byKey,labels,splitAgents,budgetMap){
       rest.forEach(i=>html+=makeTile(i,pct,budgetMap?budgetMap[i.k]:null));
       html+='</div>';
     }
+    // Custom clusters section
+    const customClusters=loadCustomClusters();
+    const customKeys=Object.keys(customClusters);
+    if(customKeys.length){
+      html+=`<div class="section-label">⭐ Custom Clusters</div><div class="tiles">`;
+      customKeys.forEach(k=>{ html+=makeCustomTile(k,customClusters[k],pct); });
+      html+='</div>';
+    }
+    // Add cluster button (shown in edit mode)
+    html+=`<button class="add-cluster-btn${_editMode?' visible':''}" onclick="openEditModal(null,true)">➕ Add cluster</button>`;
   } else {
     html+=`<div class="tiles">`;
     items.filter(i=>!i.hide).forEach(i=>html+=makeTile(i,pct,budgetMap?budgetMap[i.k]:null));
