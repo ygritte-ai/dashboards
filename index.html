@@ -27,6 +27,10 @@ h1{font-size:18px;font-weight:700;margin-bottom:2px;}
 .tile-bar-fill{height:3px;border-radius:3px;}
 .tile-budget{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.4;}
 .tile-budget b{font-weight:700;color:var(--text);}
+.tile-budget-edit{cursor:pointer;transition:color .15s;}
+.tile-budget-edit:hover{color:var(--blue);}
+.tile-budget-input{width:80px;padding:1px 4px;font-size:11px;border:1px solid #ccc;border-radius:3px;background:#fff;color:#111;}
+.tile-budget-set{color:var(--blue);cursor:pointer;text-decoration:underline;font-size:11px;}
 .section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border);}
 .section-label:first-child{margin-top:0;}
 .status{font-size:11px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
@@ -110,22 +114,66 @@ function aggByKey(rows,key){
   return r;
 }
 
-function makeTile(i,pct,budget){
+// ── Budget localStorage helpers ──
+const LS_KEY='sem_rr_budgets_2026-07';
+function loadBudgets(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'{}')}catch(e){return{}}}
+function saveBudget(key,val){const b=loadBudgets();if(val>0)b[key]=val;else delete b[key];localStorage.setItem(LS_KEY,JSON.stringify(b));}
+function getEffectiveBudget(key,defaultBudget){const ov=loadBudgets()[key];return ov!=null?ov:defaultBudget;}
+
+function makeTile(i,pct,defaultBudget){
+  const budget=getEffectiveBudget(i.k,defaultBudget);
   let budgetBlock='';
   let barPct=pct;
+  const barColor=budget?((i.projected/budget)>1.05?'#ef4444':(i.projected/budget)>0.95?'#f59e0b':'var(--blue)'):'var(--blue)';
   if(budget){
     const budgetPct=Math.round(i.mtd/budget*100);
+    const projPct=Math.round(i.projected/budget*100);
     barPct=Math.min(100,budgetPct);
-    budgetBlock=`<div class="tile-budget">Budget: <b>${fmt(budget)}</b></div>`;
+    budgetBlock=`<div class="tile-budget"><span class="tile-budget-edit" onclick="startBudgetEdit(this,'${i.k}',${budget})" title="Click to edit">Budget: <b>${fmt(budget)}</b> · ${projPct}% proj</span></div>`;
+  } else {
+    budgetBlock=`<div class="tile-budget"><span class="tile-budget-set" onclick="startBudgetEdit(this,'${i.k}',0)">Set budget</span></div>`;
   }
-  return`<div class="tile">
+  return`<div class="tile" id="tile-${i.k}">
     <div class="tile-name">${i.label}</div>
     <div class="tile-mtd">${fmt(i.mtd)}</div>
     <div class="tile-proj">Month's RR: <b>${fmt(i.projected)}</b></div>
     <div class="tile-daily">~${fmt(i.daily)}/day</div>
     ${budgetBlock}
-    <div class="tile-bar-bg"><div class="tile-bar-fill" style="width:${barPct}%;background:var(--blue)"></div></div>
+    <div class="tile-bar-bg"><div class="tile-bar-fill" style="width:${barPct}%;background:${barColor}"></div></div>
   </div>`;
+}
+
+function startBudgetEdit(el,key,currentVal){
+  const parent=el.parentElement;
+  const inp=document.createElement('input');
+  inp.className='tile-budget-input';
+  inp.type='text';
+  inp.value=currentVal>0?Math.round(currentVal):'';
+  inp.placeholder='e.g. 150000';
+  parent.innerHTML='$';
+  parent.appendChild(inp);
+  inp.focus();inp.select();
+  function commit(){
+    const v=parseInt(inp.value.replace(/,/g,''));
+    if(!isNaN(v)&&v>0){saveBudget(key,v);}
+    else if(inp.value.trim()===''&&currentVal>0){saveBudget(key,null);}
+    rerender();
+  }
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')commit();if(e.key==='Escape')rerender();});
+  inp.addEventListener('blur',commit);
+}
+
+function rerender(){
+  const cliveC=window._liveC||[];
+  const cliveG=window._liveG||[];
+  const useC=cliveC.length?[...HIST_C,...cliveC]:HIST_C;
+  const useG=cliveG.length?[...HIST_G,...cliveG]:HIST_G;
+  // Merge overrides into budget maps
+  const ovr=loadBudgets();
+  const budC=Object.assign({},BUDGET_C,Object.fromEntries(Object.entries(ovr).filter(([k])=>k in BUDGET_C||(ovr[k]&&!(k in BUDGET_G)))));
+  const budG=Object.assign({},BUDGET_G,Object.fromEntries(Object.entries(ovr).filter(([k])=>k in BUDGET_G)));
+  renderView('cluster-panel',aggByKey(useC,'c'),CD,true,budC);
+  renderView('geo-panel',aggByKey(useG,'g'),GD,false,budG);
 }
 
 function renderView(panelId,byKey,labels,splitAgents,budgetMap){
@@ -232,8 +280,7 @@ async function kremerQuery(q){
 }
 
 async function main(){
-  renderView('cluster-panel',aggByKey(HIST_C,'c'),CD,true,BUDGET_C);
-  renderView('geo-panel',aggByKey(HIST_G,'g'),GD,false,BUDGET_G);
+  rerender();
 
   const today=new Date().toISOString().slice(0,10);
   const monthStart=MONTH+'-01';
@@ -271,8 +318,8 @@ GROUP BY 1,2 ORDER BY 1,2`;
   const [liveC,liveG]=await Promise.all([kremerQuery(cQ),kremerQuery(gQ)]);
 
   if(liveC.length||liveG.length){
-    renderView('cluster-panel',aggByKey([...HIST_C,...liveC],'c'),CD,true,BUDGET_C);
-    renderView('geo-panel',aggByKey([...HIST_G,...liveG],'g'),GD,false,BUDGET_G);
+    window._liveC=liveC;window._liveG=liveG;rerender();
+    // handled by rerender above
   }
 
   const todayN=parseInt(today.slice(8));
