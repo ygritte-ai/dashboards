@@ -31,6 +31,9 @@ h1{font-size:18px;font-weight:700;margin-bottom:2px;}
 .tile-budget-edit:hover{color:var(--blue);}
 .tile-budget-input{width:80px;padding:1px 4px;font-size:11px;border:1px solid #ccc;border-radius:3px;background:#fff;color:#111;}
 .tile-budget-set{color:var(--blue);cursor:pointer;text-decoration:underline;font-size:11px;}
+.summary-budget-edit{cursor:pointer;}
+.summary-budget-edit:hover{color:var(--blue);}
+.summary-budget-input{width:110px;padding:2px 6px;font-size:20px;font-weight:700;border:1px solid #ccc;border-radius:4px;background:#fff;color:#111;}
 .section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border);}
 .section-label:first-child{margin-top:0;}
 .status{font-size:11px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
@@ -116,6 +119,10 @@ function aggByKey(rows,key){
 
 // ── Budget localStorage helpers ──
 const LS_KEY='sem_rr_budgets_2026-07';
+const LS_TOTAL='sem_rr_total_2026_07';
+function loadTotalBudget(){try{var v=localStorage.getItem('sem_rr_total_2026_07');return v!=null?parseInt(v):TOTAL_BUDGET;}catch(e){return TOTAL_BUDGET;}}
+function saveTotalBudget(val){localStorage.setItem('sem_rr_total_2026_07',String(val));}
+function startTotalBudgetEdit(el){var parent=el.closest('.s-item');var current=loadTotalBudget();parent.innerHTML='<div class="s-label">Total SEM Budget</div>$<input class="summary-budget-input" id="tbinp" type="text" value="'+Math.round(current)+'" />';var inp=parent.querySelector('#tbinp');inp.focus();inp.select();function commit(){var v=parseInt(inp.value.replace(/,/g,''));if(!isNaN(v)&&v>0){saveTotalBudget(v);}rerender();}inp.addEventListener('keydown',function(e){if(e.key==='Enter')commit();if(e.key==='Escape')rerender();});inp.addEventListener('blur',commit);}
 function loadBudgets(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'{}')}catch(e){return{}}}
 function saveBudget(key,val){const b=loadBudgets();if(val>0)b[key]=val;else delete b[key];localStorage.setItem(LS_KEY,JSON.stringify(b));}
 function getEffectiveBudget(key,defaultBudget){const ov=loadBudgets()[key];return ov!=null?ov:defaultBudget;}
@@ -191,7 +198,8 @@ function renderView(panelId,byKey,labels,splitAgents,budgetMap){
   const todayN=parseInt(today.slice(8));
   const elapsed=Math.round(todayN/DAYS*100);
   const pct=Math.min(100,elapsed);
-  const budgetSummary=splitAgents?`<div class="s-item"><div class="s-label">Total SEM Budget</div><div class="s-val">${fmt(TOTAL_BUDGET)}</div><div class="s-sub">Proj: ${Math.round(totProj/TOTAL_BUDGET*100)}% of budget</div></div>`:'';
+  const effTotalBudget=loadTotalBudget();
+  const budgetSummary=splitAgents?`<div class="s-item"><div class="s-label">Total SEM Budget</div><div class="s-val summary-budget-edit" onclick="startTotalBudgetEdit(this)" title="Click to edit">${fmt(effTotalBudget)}</div><div class="s-sub">Proj: ${Math.round(totProj/effTotalBudget*100)}% of budget &nbsp;✏️</div></div>`:'';
   let html=splitAgents?`<div class="section-label" style="margin-top:0">📊 Total SEM</div><div class="summary">
     <div class="s-item"><div class="s-label">MTD Spend</div><div class="s-val">${fmt(totMTD)}</div><div class="s-sub">${MONTH.slice(5).replace('-0','-').replace('-','/')} 1–${todayN}</div></div>
     <div class="s-item"><div class="s-label">Month's RR</div><div class="s-val">${fmt(totProj)}</div><div class="s-sub">Day-of-week projection</div></div>
