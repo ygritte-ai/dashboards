@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+:root{color-scheme:light;--blue:#0066cc;--bg:#f4f5f7;--card:#fff;--text:#1a1a2e;--muted:#6b7280;--border:#e5e7eb;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);padding:16px 20px;font-size:14px;}
+h1{font-size:18px;font-weight:700;margin-bottom:2px;}
+.subtitle{font-size:12px;color:var(--muted);margin-bottom:12px;}
+.tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:16px;}
+.tab{padding:8px 18px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+.summary{background:var(--card);border-radius:10px;padding:14px 20px;margin-bottom:16px;display:flex;gap:28px;flex-wrap:wrap;box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.s-item{min-width:100px;}
+.s-label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:2px;}
+.s-val{font-size:22px;font-weight:700;}
+.s-sub{font-size:11px;color:var(--muted);}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px;}
+.tile{background:var(--card);border-radius:10px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.tile-name{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+.tile-mtd{font-size:20px;font-weight:700;color:var(--text);}
+.tile-proj{font-size:11px;color:var(--muted);margin-top:3px;}
+.tile-proj b{color:var(--blue);}
+.tile-daily{font-size:11px;color:var(--muted);margin-top:1px;}
+.tile-bar-bg{background:#eef0f5;border-radius:3px;height:3px;margin-top:6px;overflow:hidden;}
+.tile-bar-fill{height:3px;border-radius:3px;}
+.tile-budget{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.4;}
+.tile-budget b{font-weight:700;color:var(--text);}
+.section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border);}
+.section-label:first-child{margin-top:0;}
+.status{font-size:11px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.dot{width:7px;height:7px;border-radius:50%;background:#10b981;flex-shrink:0;}
+.dot.loading{background:#f59e0b;animation:pulse 1s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+</style>
+</head>
+<body>
+<h1>SEM · PRM · Work Management</h1>
+<div class="subtitle" id="subtitle">July 2026 Run Rate · Clusters &amp; Countries</div>
+
+<div class="status">
+  <div class="dot loading" id="dot"></div>
+  <span id="status-text">Showing Jul 1–20 · Loading live data…</span>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('cluster')">By Cluster</div>
+  <div class="tab" onclick="showTab('geo')">By Country</div>
+</div>
+
+<div id="cluster-panel" class="tab-panel active"><p style="padding:20px;color:var(--muted)">Loading…</p></div>
+<div id="geo-panel" class="tab-panel"><p style="padding:20px;color:var(--muted)">Loading…</p></div>
+
+<script>
+// ── STATIC DATA: month-to-date actuals (injected by skill) ──
+const HIST_C=[{"d": "2026-07-01", "c": "AgentHR", "s": 8592.857785}, {"d": "2026-07-01", "c": "AgentIT", "s": 695.436304}, {"d": "2026-07-01", "c": "AgentLegal", "s": 7287.638899}, {"d": "2026-07-01", "c": "AgentMarketing", "s": 4240.664454}, {"d": "2026-07-01", "c": "AgentWork", "s": 12986.917718}, {"d": "2026-07-01", "c": "Calendar", "s": 7904.9791}, {"d": "2026-07-01", "c": "Competitors", "s": 30235.422225}, {"d": "2026-07-01", "c": "Gantt", "s": 6098.818151}, {"d": "2026-07-01", "c": "General", "s": 8863.366261}, {"d": "2026-07-01", "c": "Logistic", "s": 3798.126383}, {"d": "2026-07-01", "c": "Marketing", "s": 5291.912006}, {"d": "2026-07-01", "c": "Other", "s": 2115.460179}, {"d": "2026-07-01", "c": "ProjMgmt", "s": 51674.782801}, {"d": "2026-07-01", "c": "Task", "s": 15657.933575}, {"d": "2026-07-01", "c": "ToDo", "s": 8837.909922}, {"d": "2026-07-02", "c": "AgentHR", "s": 6903.871415}, {"d": "2026-07-02", "c": "AgentIT", "s": 421.965409}, {"d": "2026-07-02", "c": "AgentLegal", "s": 4616.602272}, {"d": "2026-07-02", "c": "AgentMarketing", "s": 3443.546376}, {"d": "2026-07-02", "c": "AgentWork", "s": 8600.493064}, {"d": "2026-07-02", "c": "Calendar", "s": 5762.557917}, {"d": "2026-07-02", "c": "Competitors", "s": 23701.100835}, {"d": "2026-07-02", "c": "Gantt", "s": 5152.416739}, {"d": "2026-07-02", "c": "General", "s": 6995.371259}, {"d": "2026-07-02", "c": "Logistic", "s": 3556.100059}, {"d": "2026-07-02", "c": "Marketing", "s": 4044.147288}, {"d": "2026-07-02", "c": "Other", "s": 4418.478859}, {"d": "2026-07-02", "c": "ProjMgmt", "s": 46261.094189}, {"d": "2026-07-02", "c": "Task", "s": 13114.972867}, {"d": "2026-07-02", "c": "ToDo", "s": 7257.193544}, {"d": "2026-07-03", "c": "AgentHR", "s": 4257.881196}, {"d": "2026-07-03", "c": "AgentIT", "s": 189.47}, {"d": "2026-07-03", "c": "AgentLegal", "s": 2526.991523}, {"d": "2026-07-03", "c": "AgentMarketing", "s": 3612.638696}, {"d": "2026-07-03", "c": "AgentWork", "s": 7505.627985}, {"d": "2026-07-03", "c": "Calendar", "s": 2962.376529}, {"d": "2026-07-03", "c": "Competitors", "s": 13619.164856}, {"d": "2026-07-03", "c": "Gantt", "s": 3326.803947}, {"d": "2026-07-03", "c": "General", "s": 2882.921374}, {"d": "2026-07-03", "c": "Logistic", "s": 2335.285721}, {"d": "2026-07-03", "c": "Marketing", "s": 2570.303791}, {"d": "2026-07-03", "c": "Other", "s": 2769.125471}, {"d": "2026-07-03", "c": "ProjMgmt", "s": 23031.498695}, {"d": "2026-07-03", "c": "Task", "s": 6640.941022}, {"d": "2026-07-03", "c": "ToDo", "s": 4056.191335}, {"d": "2026-07-04", "c": "AgentHR", "s": 2770.770003}, {"d": "2026-07-04", "c": "AgentIT", "s": 332.152758}, {"d": "2026-07-04", "c": "AgentLegal", "s": 1126.228485}, {"d": "2026-07-04", "c": "AgentMarketing", "s": 3925.658943}, {"d": "2026-07-04", "c": "AgentWork", "s": 4044.655728}, {"d": "2026-07-04", "c": "Calendar", "s": 1405.727096}, {"d": "2026-07-04", "c": "Competitors", "s": 7033.464414}, {"d": "2026-07-04", "c": "Gantt", "s": 1353.716654}, {"d": "2026-07-04", "c": "General", "s": 1383.371929}, {"d": "2026-07-04", "c": "Logistic", "s": 895.149689}, {"d": "2026-07-04", "c": "Marketing", "s": 1070.070107}, {"d": "2026-07-04", "c": "Other", "s": 1157.1931}, {"d": "2026-07-04", "c": "ProjMgmt", "s": 11256.693132}, {"d": "2026-07-04", "c": "Task", "s": 2116.912572}, {"d": "2026-07-04", "c": "ToDo", "s": 1530.051901}, {"d": "2026-07-05", "c": "AgentHR", "s": 2644.086702}, {"d": "2026-07-05", "c": "AgentIT", "s": 247.219038}, {"d": "2026-07-05", "c": "AgentLegal", "s": 1805.984926}, {"d": "2026-07-05", "c": "AgentMarketing", "s": 3580.640327}, {"d": "2026-07-05", "c": "AgentWork", "s": 6263.452442}, {"d": "2026-07-05", "c": "Calendar", "s": 1528.561108}, {"d": "2026-07-05", "c": "Competitors", "s": 9139.538736}, {"d": "2026-07-05", "c": "Gantt", "s": 1564.70184}, {"d": "2026-07-05", "c": "General", "s": 1303.61859}, {"d": "2026-07-05", "c": "Logistic", "s": 926.397263}, {"d": "2026-07-05", "c": "Marketing", "s": 1517.126627}, {"d": "2026-07-05", "c": "Other", "s": 1160.193893}, {"d": "2026-07-05", "c": "ProjMgmt", "s": 13741.010922}, {"d": "2026-07-05", "c": "Task", "s": 1887.877691}, {"d": "2026-07-05", "c": "ToDo", "s": 2160.739724}, {"d": "2026-07-06", "c": "AgentHR", "s": 6872.095048}, {"d": "2026-07-06", "c": "AgentIT", "s": 1192.81766}, {"d": "2026-07-06", "c": "AgentLegal", "s": 2839.032877}, {"d": "2026-07-06", "c": "AgentMarketing", "s": 3005.054012}, {"d": "2026-07-06", "c": "AgentWork", "s": 13072.578662}, {"d": "2026-07-06", "c": "Calendar", "s": 7058.930692}, {"d": "2026-07-06", "c": "Competitors", "s": 26748.724898}, {"d": "2026-07-06", "c": "Gantt", "s": 5339.43483}, {"d": "2026-07-06", "c": "General", "s": 6561.178221}, {"d": "2026-07-06", "c": "Logistic", "s": 3639.690111}, {"d": "2026-07-06", "c": "Marketing", "s": 4783.101157}, {"d": "2026-07-06", "c": "Other", "s": 5532.851843}, {"d": "2026-07-06", "c": "ProjMgmt", "s": 46550.060029}, {"d": "2026-07-06", "c": "Task", "s": 14864.800935}, {"d": "2026-07-06", "c": "ToDo", "s": 8955.166317}, {"d": "2026-07-07", "c": "AgentFinance", "s": 701.527334}, {"d": "2026-07-07", "c": "AgentHR", "s": 7037.346621}, {"d": "2026-07-07", "c": "AgentIT", "s": 2340.201242}, {"d": "2026-07-07", "c": "AgentLegal", "s": 3932.695516}, {"d": "2026-07-07", "c": "AgentMarketing", "s": 3661.197595}, {"d": "2026-07-07", "c": "AgentRealEstate", "s": 399.439493}, {"d": "2026-07-07", "c": "AgentWork", "s": 12444.197067}, {"d": "2026-07-07", "c": "Calendar", "s": 8687.151564}, {"d": "2026-07-07", "c": "Competitors", "s": 28530.732689}, {"d": "2026-07-07", "c": "Gantt", "s": 6314.68471}, {"d": "2026-07-07", "c": "General", "s": 7592.905228}, {"d": "2026-07-07", "c": "Logistic", "s": 4981.06247}, {"d": "2026-07-07", "c": "Marketing", "s": 5075.887075}, {"d": "2026-07-07", "c": "Other", "s": 5353.356419}, {"d": "2026-07-07", "c": "ProjMgmt", "s": 52759.795463}, {"d": "2026-07-07", "c": "Task", "s": 16680.798388}, {"d": "2026-07-07", "c": "ToDo", "s": 9890.89401}, {"d": "2026-07-08", "c": "AgentFinance", "s": 1523.566491}, {"d": "2026-07-08", "c": "AgentHR", "s": 10752.855968}, {"d": "2026-07-08", "c": "AgentIT", "s": 1120.353408}, {"d": "2026-07-08", "c": "AgentLegal", "s": 4416.512192}, {"d": "2026-07-08", "c": "AgentMarketing", "s": 3650.896244}, {"d": "2026-07-08", "c": "AgentRealEstate", "s": 1184.520299}, {"d": "2026-07-08", "c": "AgentWork", "s": 9420.018835}, {"d": "2026-07-08", "c": "Calendar", "s": 8040.572453}, {"d": "2026-07-08", "c": "Competitors", "s": 29969.992694}, {"d": "2026-07-08", "c": "Gantt", "s": 6469.850225}, {"d": "2026-07-08", "c": "General", "s": 7135.641424}, {"d": "2026-07-08", "c": "Logistic", "s": 6359.857515}, {"d": "2026-07-08", "c": "Marketing", "s": 4533.414208}, {"d": "2026-07-08", "c": "Other", "s": 5846.781429}, {"d": "2026-07-08", "c": "ProjMgmt", "s": 55843.050827}, {"d": "2026-07-08", "c": "Task", "s": 18543.323362}, {"d": "2026-07-08", "c": "ToDo", "s": 9036.41966}, {"d": "2026-07-09", "c": "AgentFinance", "s": 1241.216633}, {"d": "2026-07-09", "c": "AgentHR", "s": 13051.621529}, {"d": "2026-07-09", "c": "AgentIT", "s": 871.292052}, {"d": "2026-07-09", "c": "AgentLegal", "s": 3285.840728}, {"d": "2026-07-09", "c": "AgentMarketing", "s": 3621.322468}, {"d": "2026-07-09", "c": "AgentRealEstate", "s": 797.217475}, {"d": "2026-07-09", "c": "AgentWork", "s": 6996.437951}, {"d": "2026-07-09", "c": "Calendar", "s": 7820.333255}, {"d": "2026-07-09", "c": "Competitors", "s": 29211.012778}, {"d": "2026-07-09", "c": "Gantt", "s": 6601.300859}, {"d": "2026-07-09", "c": "General", "s": 6298.721455}, {"d": "2026-07-09", "c": "Logistic", "s": 5856.702163}, {"d": "2026-07-09", "c": "Marketing", "s": 3911.742557}, {"d": "2026-07-09", "c": "Other", "s": 5689.039859}, {"d": "2026-07-09", "c": "ProjMgmt", "s": 47396.509465}, {"d": "2026-07-09", "c": "Task", "s": 15186.908222}, {"d": "2026-07-09", "c": "ToDo", "s": 8612.259573}, {"d": "2026-07-10", "c": "AgentFinance", "s": 675.48}, {"d": "2026-07-10", "c": "AgentHR", "s": 9786.834377}, {"d": "2026-07-10", "c": "AgentIT", "s": 509.24961}, {"d": "2026-07-10", "c": "AgentLegal", "s": 2495.362949}, {"d": "2026-07-10", "c": "AgentMarketing", "s": 3634.889933}, {"d": "2026-07-10", "c": "AgentRealEstate", "s": 387.842516}, {"d": "2026-07-10", "c": "AgentWork", "s": 7013.112387}, {"d": "2026-07-10", "c": "Calendar", "s": 4653.90524}, {"d": "2026-07-10", "c": "Competitors", "s": 24167.724034}, {"d": "2026-07-10", "c": "Gantt", "s": 5386.979467}, {"d": "2026-07-10", "c": "General", "s": 3283.142529}, {"d": "2026-07-10", "c": "Logistic", "s": 3570.857965}, {"d": "2026-07-10", "c": "Marketing", "s": 3393.353605}, {"d": "2026-07-10", "c": "Other", "s": 2635.798766}, {"d": "2026-07-10", "c": "ProjMgmt", "s": 33116.729361}, {"d": "2026-07-10", "c": "Task", "s": 8680.670792}, {"d": "2026-07-10", "c": "ToDo", "s": 4590.943786}, {"d": "2026-07-11", "c": "AgentFinance", "s": 357.4}, {"d": "2026-07-11", "c": "AgentHR", "s": 4459.967555}, {"d": "2026-07-11", "c": "AgentIT", "s": 616.07}, {"d": "2026-07-11", "c": "AgentLegal", "s": 1924.051961}, {"d": "2026-07-11", "c": "AgentMarketing", "s": 3760.457664}, {"d": "2026-07-11", "c": "AgentRealEstate", "s": 169.132998}, {"d": "2026-07-11", "c": "AgentWork", "s": 6975.982648}, {"d": "2026-07-11", "c": "Calendar", "s": 1684.005333}, {"d": "2026-07-11", "c": "Competitors", "s": 10718.203639}, {"d": "2026-07-11", "c": "Gantt", "s": 2566.586967}, {"d": "2026-07-11", "c": "General", "s": 1360.936711}, {"d": "2026-07-11", "c": "Logistic", "s": 1197.389398}, {"d": "2026-07-11", "c": "Marketing", "s": 1274.065665}, {"d": "2026-07-11", "c": "Other", "s": 799.889083}, {"d": "2026-07-11", "c": "ProjMgmt", "s": 13684.353299}, {"d": "2026-07-11", "c": "Task", "s": 2475.705232}, {"d": "2026-07-11", "c": "ToDo", "s": 1666.030755}, {"d": "2026-07-12", "c": "AgentFinance", "s": 221.311805}, {"d": "2026-07-12", "c": "AgentHR", "s": 2587.50672}, {"d": "2026-07-12", "c": "AgentIT", "s": 432.966905}, {"d": "2026-07-12", "c": "AgentLegal", "s": 1514.087977}, {"d": "2026-07-12", "c": "AgentMarketing", "s": 3598.870791}, {"d": "2026-07-12", "c": "AgentNoteTaker", "s": 1964.172288}, {"d": "2026-07-12", "c": "AgentRealEstate", "s": 197.230502}, {"d": "2026-07-12", "c": "AgentWork", "s": 5470.701449}, {"d": "2026-07-12", "c": "Calendar", "s": 1890.721582}, {"d": "2026-07-12", "c": "Competitors", "s": 12111.743864}, {"d": "2026-07-12", "c": "Gantt", "s": 2943.707979}, {"d": "2026-07-12", "c": "General", "s": 1875.275416}, {"d": "2026-07-12", "c": "Logistic", "s": 845.430432}, {"d": "2026-07-12", "c": "Marketing", "s": 1192.352346}, {"d": "2026-07-12", "c": "Other", "s": 893.876557}, {"d": "2026-07-12", "c": "ProjMgmt", "s": 14066.430867}, {"d": "2026-07-12", "c": "Task", "s": 2249.831081}, {"d": "2026-07-12", "c": "ToDo", "s": 2142.382247}, {"d": "2026-07-13", "c": "AgentConstruction", "s": 178.17}, {"d": "2026-07-13", "c": "AgentFinance", "s": 931.837655}, {"d": "2026-07-13", "c": "AgentHR", "s": 7215.728012}, {"d": "2026-07-13", "c": "AgentIT", "s": 1202.404613}, {"d": "2026-07-13", "c": "AgentLegal", "s": 2251.768716}, {"d": "2026-07-13", "c": "AgentMarketing", "s": 6135.513609}, {"d": "2026-07-13", "c": "AgentNoteTaker", "s": 6894.944978}, {"d": "2026-07-13", "c": "AgentRealEstate", "s": 641.801771}, {"d": "2026-07-13", "c": "AgentWork", "s": 8276.174563}, {"d": "2026-07-13", "c": "Calendar", "s": 6178.395346}, {"d": "2026-07-13", "c": "Competitors", "s": 28039.74123}, {"d": "2026-07-13", "c": "Gantt", "s": 8653.909792}, {"d": "2026-07-13", "c": "General", "s": 4927.439321}, {"d": "2026-07-13", "c": "Logistic", "s": 4463.830637}, {"d": "2026-07-13", "c": "Marketing", "s": 4196.173032}, {"d": "2026-07-13", "c": "Other", "s": 3100.321562}, {"d": "2026-07-13", "c": "ProjMgmt", "s": 36780.747567}, {"d": "2026-07-13", "c": "Task", "s": 10446.41025}, {"d": "2026-07-13", "c": "ToDo", "s": 5996.104302}, {"d": "2026-07-14", "c": "AgentConstruction", "s": 151.575436}, {"d": "2026-07-14", "c": "AgentFinance", "s": 1198.969202}, {"d": "2026-07-14", "c": "AgentHR", "s": 10937.853404}, {"d": "2026-07-14", "c": "AgentIT", "s": 2091.851132}, {"d": "2026-07-14", "c": "AgentLegal", "s": 1962.115513}, {"d": "2026-07-14", "c": "AgentMarketing", "s": 6175.253061}, {"d": "2026-07-14", "c": "AgentNoteTaker", "s": 8874.366169}, {"d": "2026-07-14", "c": "AgentRealEstate", "s": 534.723156}, {"d": "2026-07-14", "c": "AgentWork", "s": 7255.803952}, {"d": "2026-07-14", "c": "Calendar", "s": 9019.790717}, {"d": "2026-07-14", "c": "Competitors", "s": 32491.628009}, {"d": "2026-07-14", "c": "Gantt", "s": 9984.842422}, {"d": "2026-07-14", "c": "General", "s": 5413.48892}, {"d": "2026-07-14", "c": "Logistic", "s": 5763.086849}, {"d": "2026-07-14", "c": "Marketing", "s": 5254.327794}, {"d": "2026-07-14", "c": "Other", "s": 4091.073488}, {"d": "2026-07-14", "c": "ProjMgmt", "s": 29085.874004}, {"d": "2026-07-14", "c": "Task", "s": 14114.376615}, {"d": "2026-07-14", "c": "ToDo", "s": 6674.154046}, {"d": "2026-07-15", "c": "AgentConstruction", "s": 104.68}, {"d": "2026-07-15", "c": "AgentFinance", "s": 935.295421}, {"d": "2026-07-15", "c": "AgentHR", "s": 8783.518404}, {"d": "2026-07-15", "c": "AgentIT", "s": 951.368082}, {"d": "2026-07-15", "c": "AgentLegal", "s": 1608.938182}, {"d": "2026-07-15", "c": "AgentMarketing", "s": 4269.71132}, {"d": "2026-07-15", "c": "AgentNoteTaker", "s": 6102.164021}, {"d": "2026-07-15", "c": "AgentRealEstate", "s": 1315.125968}, {"d": "2026-07-15", "c": "AgentWork", "s": 6980.938491}, {"d": "2026-07-15", "c": "Calendar", "s": 12896.026188}, {"d": "2026-07-15", "c": "Competitors", "s": 32367.357658}, {"d": "2026-07-15", "c": "Gantt", "s": 8792.178853}, {"d": "2026-07-15", "c": "General", "s": 6317.325748}, {"d": "2026-07-15", "c": "Logistic", "s": 5559.093987}, {"d": "2026-07-15", "c": "Marketing", "s": 4862.49588}, {"d": "2026-07-15", "c": "Other", "s": 5174.520602}, {"d": "2026-07-15", "c": "ProjMgmt", "s": 33275.838854}, {"d": "2026-07-15", "c": "Task", "s": 20006.027552}, {"d": "2026-07-15", "c": "ToDo", "s": 8339.804298}, {"d": "2026-07-16", "c": "AgentConstruction", "s": 93.483307}, {"d": "2026-07-16", "c": "AgentFinance", "s": 1125.219527}, {"d": "2026-07-16", "c": "AgentHR", "s": 10194.628658}, {"d": "2026-07-16", "c": "AgentIT", "s": 1312.561793}, {"d": "2026-07-16", "c": "AgentLegal", "s": 1471.794464}, {"d": "2026-07-16", "c": "AgentMarketing", "s": 3501.029233}, {"d": "2026-07-16", "c": "AgentNoteTaker", "s": 5786.39102}, {"d": "2026-07-16", "c": "AgentRealEstate", "s": 1318.314927}, {"d": "2026-07-16", "c": "AgentWork", "s": 6811.292191}, {"d": "2026-07-16", "c": "Calendar", "s": 11224.597757}, {"d": "2026-07-16", "c": "Competitors", "s": 31912.161051}, {"d": "2026-07-16", "c": "Gantt", "s": 7375.485438}, {"d": "2026-07-16", "c": "General", "s": 5518.225601}, {"d": "2026-07-16", "c": "Logistic", "s": 4929.029734}, {"d": "2026-07-16", "c": "Marketing", "s": 4411.361343}, {"d": "2026-07-16", "c": "Other", "s": 5019.670591}, {"d": "2026-07-16", "c": "ProjMgmt", "s": 30218.89435}, {"d": "2026-07-16", "c": "Task", "s": 18203.813986}, {"d": "2026-07-16", "c": "ToDo", "s": 5873.417756}, {"d": "2026-07-17", "c": "AgentConstruction", "s": 29.558075}, {"d": "2026-07-17", "c": "AgentFinance", "s": 1238.538099}, {"d": "2026-07-17", "c": "AgentHR", "s": 9893.09311}, {"d": "2026-07-17", "c": "AgentIT", "s": 1559.292988}, {"d": "2026-07-17", "c": "AgentLegal", "s": 1510.178557}, {"d": "2026-07-17", "c": "AgentMarketing", "s": 3518.531361}, {"d": "2026-07-17", "c": "AgentNoteTaker", "s": 4687.63361}, {"d": "2026-07-17", "c": "AgentRealEstate", "s": 1146.202943}, {"d": "2026-07-17", "c": "AgentWork", "s": 4958.141506}, {"d": "2026-07-17", "c": "Calendar", "s": 8365.914578}, {"d": "2026-07-17", "c": "Competitors", "s": 25382.270608}, {"d": "2026-07-17", "c": "Gantt", "s": 5240.524546}, {"d": "2026-07-17", "c": "General", "s": 4494.085125}, {"d": "2026-07-17", "c": "Logistic", "s": 3068.509502}, {"d": "2026-07-17", "c": "Marketing", "s": 3316.258046}, {"d": "2026-07-17", "c": "Other", "s": 4261.066646}, {"d": "2026-07-17", "c": "ProjMgmt", "s": 26525.606664}, {"d": "2026-07-17", "c": "Task", "s": 14347.107226}, {"d": "2026-07-17", "c": "ToDo", "s": 4380.157502}, {"d": "2026-07-18", "c": "AgentConstruction", "s": 105.29}, {"d": "2026-07-18", "c": "AgentFinance", "s": 777.485682}, {"d": "2026-07-18", "c": "AgentHR", "s": 6601.755084}, {"d": "2026-07-18", "c": "AgentIT", "s": 1479.80828}, {"d": "2026-07-18", "c": "AgentLegal", "s": 982.841779}, {"d": "2026-07-18", "c": "AgentMarketing", "s": 3126.332169}, {"d": "2026-07-18", "c": "AgentNoteTaker", "s": 2173.084418}, {"d": "2026-07-18", "c": "AgentRealEstate", "s": 1029.538838}, {"d": "2026-07-18", "c": "AgentWork", "s": 5114.998474}, {"d": "2026-07-18", "c": "Calendar", "s": 3556.047701}, {"d": "2026-07-18", "c": "Competitors", "s": 13247.680396}, {"d": "2026-07-18", "c": "Gantt", "s": 2280.796051}, {"d": "2026-07-18", "c": "General", "s": 1541.986576}, {"d": "2026-07-18", "c": "Logistic", "s": 1244.74468}, {"d": "2026-07-18", "c": "Marketing", "s": 1724.725037}, {"d": "2026-07-18", "c": "Other", "s": 1953.110127}, {"d": "2026-07-18", "c": "ProjMgmt", "s": 8835.94449}, {"d": "2026-07-18", "c": "Task", "s": 4006.998089}, {"d": "2026-07-18", "c": "ToDo", "s": 1876.948922}, {"d": "2026-07-19", "c": "AgentConstruction", "s": 87.649782}, {"d": "2026-07-19", "c": "AgentFinance", "s": 389.544557}, {"d": "2026-07-19", "c": "AgentHR", "s": 5810.145494}, {"d": "2026-07-19", "c": "AgentIT", "s": 1382.681951}, {"d": "2026-07-19", "c": "AgentLegal", "s": 970.183007}, {"d": "2026-07-19", "c": "AgentMarketing", "s": 2751.561147}, {"d": "2026-07-19", "c": "AgentNoteTaker", "s": 1730.089731}, {"d": "2026-07-19", "c": "AgentRealEstate", "s": 600.213017}, {"d": "2026-07-19", "c": "AgentWork", "s": 4474.525341}, {"d": "2026-07-19", "c": "Calendar", "s": 4084.847636}, {"d": "2026-07-19", "c": "Competitors", "s": 13484.689635}, {"d": "2026-07-19", "c": "Gantt", "s": 4384.422589}, {"d": "2026-07-19", "c": "General", "s": 2120.812927}, {"d": "2026-07-19", "c": "Logistic", "s": 803.609079}, {"d": "2026-07-19", "c": "Marketing", "s": 1597.329346}, {"d": "2026-07-19", "c": "Other", "s": 2704.440383}, {"d": "2026-07-19", "c": "ProjMgmt", "s": 7559.603696}, {"d": "2026-07-19", "c": "Task", "s": 4102.680322}, {"d": "2026-07-19", "c": "ToDo", "s": 1985.257808}];
+const HIST_G=[{"d": "2026-07-01", "g": "au", "s": 8771.159101}, {"d": "2026-07-01", "g": "br", "s": 5891.922441}, {"d": "2026-07-01", "g": "ca", "s": 2223.6358}, {"d": "2026-07-01", "g": "dach", "s": 1959.547511}, {"d": "2026-07-01", "g": "fr", "s": 3685.75474}, {"d": "2026-07-01", "g": "gb", "s": 13768.830947}, {"d": "2026-07-01", "g": "latam", "s": 6854.404769}, {"d": "2026-07-01", "g": "us", "s": 120154.314505}, {"d": "2026-07-01", "g": "ww", "s": 10972.655949}, {"d": "2026-07-02", "g": "au", "s": 5419.2459}, {"d": "2026-07-02", "g": "br", "s": 5494.515597}, {"d": "2026-07-02", "g": "ca", "s": 4815.546765}, {"d": "2026-07-02", "g": "dach", "s": 1708.4905}, {"d": "2026-07-02", "g": "fr", "s": 2801.506804}, {"d": "2026-07-02", "g": "gb", "s": 10538.395854}, {"d": "2026-07-02", "g": "latam", "s": 6151.016741}, {"d": "2026-07-02", "g": "us", "s": 95381.445987}, {"d": "2026-07-02", "g": "ww", "s": 11939.747944}, {"d": "2026-07-03", "g": "au", "s": 3249.274062}, {"d": "2026-07-03", "g": "br", "s": 4448.434424}, {"d": "2026-07-03", "g": "ca", "s": 3244.591821}, {"d": "2026-07-03", "g": "dach", "s": 1367.056138}, {"d": "2026-07-03", "g": "fr", "s": 2365.46626}, {"d": "2026-07-03", "g": "gb", "s": 8426.411986}, {"d": "2026-07-03", "g": "latam", "s": 4815.811332}, {"d": "2026-07-03", "g": "us", "s": 45426.667008}, {"d": "2026-07-03", "g": "ww", "s": 8943.50911}, {"d": "2026-07-04", "g": "au", "s": 1205.895526}, {"d": "2026-07-04", "g": "br", "s": 1225.910355}, {"d": "2026-07-04", "g": "ca", "s": 1417.9031}, {"d": "2026-07-04", "g": "dach", "s": 772.808272}, {"d": "2026-07-04", "g": "fr", "s": 516.636296}, {"d": "2026-07-04", "g": "gb", "s": 2614.408071}, {"d": "2026-07-04", "g": "latam", "s": 1954.94551}, {"d": "2026-07-04", "g": "us", "s": 27583.885555}, {"d": "2026-07-04", "g": "ww", "s": 4109.423826}, {"d": "2026-07-05", "g": "au", "s": 2253.817865}, {"d": "2026-07-05", "g": "br", "s": 1125.804316}, {"d": "2026-07-05", "g": "ca", "s": 1368.253893}, {"d": "2026-07-05", "g": "dach", "s": 848.020858}, {"d": "2026-07-05", "g": "fr", "s": 524.638683}, {"d": "2026-07-05", "g": "gb", "s": 2873.356736}, {"d": "2026-07-05", "g": "latam", "s": 1595.582604}, {"d": "2026-07-05", "g": "us", "s": 34498.516603}, {"d": "2026-07-05", "g": "ww", "s": 4383.158271}, {"d": "2026-07-06", "g": "au", "s": 5724.095427}, {"d": "2026-07-06", "g": "br", "s": 5601.91443}, {"d": "2026-07-06", "g": "ca", "s": 6133.975726}, {"d": "2026-07-06", "g": "dach", "s": 1890.320784}, {"d": "2026-07-06", "g": "fr", "s": 2856.359195}, {"d": "2026-07-06", "g": "gb", "s": 11923.083965}, {"d": "2026-07-06", "g": "latam", "s": 6401.134758}, {"d": "2026-07-06", "g": "us", "s": 106247.338437}, {"d": "2026-07-06", "g": "ww", "s": 10237.29457}, {"d": "2026-07-07", "g": "au", "s": 6266.958574}, {"d": "2026-07-07", "g": "br", "s": 4936.970001}, {"d": "2026-07-07", "g": "ca", "s": 6023.409519}, {"d": "2026-07-07", "g": "dach", "s": 1749.125982}, {"d": "2026-07-07", "g": "fr", "s": 2639.151106}, {"d": "2026-07-07", "g": "gb", "s": 13427.82634}, {"d": "2026-07-07", "g": "latam", "s": 6314.744702}, {"d": "2026-07-07", "g": "us", "s": 124242.393723}, {"d": "2026-07-07", "g": "ww", "s": 10783.292937}, {"d": "2026-07-08", "g": "au", "s": 6343.859299}, {"d": "2026-07-08", "g": "br", "s": 5325.551224}, {"d": "2026-07-08", "g": "ca", "s": 6404.483736}, {"d": "2026-07-08", "g": "dach", "s": 1677.624081}, {"d": "2026-07-08", "g": "fr", "s": 2636.024454}, {"d": "2026-07-08", "g": "gb", "s": 15047.035473}, {"d": "2026-07-08", "g": "latam", "s": 8103.387653}, {"d": "2026-07-08", "g": "us", "s": 126817.502992}, {"d": "2026-07-08", "g": "ww", "s": 11492.158322}, {"d": "2026-07-09", "g": "au", "s": 5403.578458}, {"d": "2026-07-09", "g": "br", "s": 3864.58246}, {"d": "2026-07-09", "g": "ca", "s": 6359.159402}, {"d": "2026-07-09", "g": "dach", "s": 1749.511792}, {"d": "2026-07-09", "g": "fr", "s": 2361.501635}, {"d": "2026-07-09", "g": "gb", "s": 13726.539336}, {"d": "2026-07-09", "g": "latam", "s": 6515.587328}, {"d": "2026-07-09", "g": "us", "s": 117538.485217}, {"d": "2026-07-09", "g": "ww", "s": 8930.533394}, {"d": "2026-07-10", "g": "au", "s": 3210.090915}, {"d": "2026-07-10", "g": "br", "s": 3709.822185}, {"d": "2026-07-10", "g": "ca", "s": 2944.369834}, {"d": "2026-07-10", "g": "dach", "s": 1701.139198}, {"d": "2026-07-10", "g": "fr", "s": 3032.578532}, {"d": "2026-07-10", "g": "gb", "s": 9872.371633}, {"d": "2026-07-10", "g": "latam", "s": 5476.256278}, {"d": "2026-07-10", "g": "us", "s": 80744.041506}, {"d": "2026-07-10", "g": "ww", "s": 7292.207236}, {"d": "2026-07-11", "g": "au", "s": 1941.915586}, {"d": "2026-07-11", "g": "br", "s": 1016.799022}, {"d": "2026-07-11", "g": "ca", "s": 1007.891953}, {"d": "2026-07-11", "g": "dach", "s": 1041.707229}, {"d": "2026-07-11", "g": "fr", "s": 842.524108}, {"d": "2026-07-11", "g": "gb", "s": 2918.020852}, {"d": "2026-07-11", "g": "latam", "s": 2320.370096}, {"d": "2026-07-11", "g": "us", "s": 40699.119354}, {"d": "2026-07-11", "g": "ww", "s": 3901.880708}, {"d": "2026-07-12", "g": "au", "s": 3262.929222}, {"d": "2026-07-12", "g": "br", "s": 1225.332135}, {"d": "2026-07-12", "g": "ca", "s": 1080.542269}, {"d": "2026-07-12", "g": "dach", "s": 997.165452}, {"d": "2026-07-12", "g": "fr", "s": 760.562756}, {"d": "2026-07-12", "g": "gb", "s": 3653.421788}, {"d": "2026-07-12", "g": "latam", "s": 1816.293669}, {"d": "2026-07-12", "g": "us", "s": 39559.321007}, {"d": "2026-07-12", "g": "ww", "s": 3843.03251}, {"d": "2026-07-13", "g": "au", "s": 6919.808315}, {"d": "2026-07-13", "g": "br", "s": 5054.117326}, {"d": "2026-07-13", "g": "ca", "s": 3228.084695}, {"d": "2026-07-13", "g": "dach", "s": 2580.804003}, {"d": "2026-07-13", "g": "fr", "s": 2967.687277}, {"d": "2026-07-13", "g": "gb", "s": 12455.824611}, {"d": "2026-07-13", "g": "latam", "s": 6154.498478}, {"d": "2026-07-13", "g": "us", "s": 97404.987435}, {"d": "2026-07-13", "g": "ww", "s": 9745.604816}, {"d": "2026-07-14", "g": "au", "s": 8356.432261}, {"d": "2026-07-14", "g": "br", "s": 5507.015978}, {"d": "2026-07-14", "g": "ca", "s": 4458.016687}, {"d": "2026-07-14", "g": "dach", "s": 2693.77999}, {"d": "2026-07-14", "g": "fr", "s": 1575.409279}, {"d": "2026-07-14", "g": "gb", "s": 13901.216964}, {"d": "2026-07-14", "g": "latam", "s": 8709.353874}, {"d": "2026-07-14", "g": "us", "s": 106917.049323}, {"d": "2026-07-14", "g": "ww", "s": 8956.879533}, {"d": "2026-07-15", "g": "au", "s": 8531.521303}, {"d": "2026-07-15", "g": "br", "s": 5101.151467}, {"d": "2026-07-15", "g": "ca", "s": 5190.795478}, {"d": "2026-07-15", "g": "dach", "s": 2409.525542}, {"d": "2026-07-15", "g": "fr", "s": 3354.819681}, {"d": "2026-07-15", "g": "gb", "s": 14757.462641}, {"d": "2026-07-15", "g": "latam", "s": 8082.130026}, {"d": "2026-07-15", "g": "us", "s": 110817.652701}, {"d": "2026-07-15", "g": "ww", "s": 10397.35067}, {"d": "2026-07-16", "g": "au", "s": 7235.087126}, {"d": "2026-07-16", "g": "br", "s": 5275.942596}, {"d": "2026-07-16", "g": "ca", "s": 5557.612477}, {"d": "2026-07-16", "g": "dach", "s": 2128.595538}, {"d": "2026-07-16", "g": "fr", "s": 4178.736718}, {"d": "2026-07-16", "g": "gb", "s": 13224.910892}, {"d": "2026-07-16", "g": "latam", "s": 7681.039026}, {"d": "2026-07-16", "g": "us", "s": 100489.993249}, {"d": "2026-07-16", "g": "ww", "s": 10529.455105}, {"d": "2026-07-17", "g": "au", "s": 5288.544508}, {"d": "2026-07-17", "g": "br", "s": 3917.815066}, {"d": "2026-07-17", "g": "ca", "s": 4312.843316}, {"d": "2026-07-17", "g": "dach", "s": 1765.06022}, {"d": "2026-07-17", "g": "fr", "s": 2516.065539}, {"d": "2026-07-17", "g": "gb", "s": 9948.974648}, {"d": "2026-07-17", "g": "latam", "s": 6222.37268}, {"d": "2026-07-17", "g": "us", "s": 86403.843972}, {"d": "2026-07-17", "g": "ww", "s": 7547.150743}, {"d": "2026-07-18", "g": "au", "s": 2763.014218}, {"d": "2026-07-18", "g": "br", "s": 1033.188487}, {"d": "2026-07-18", "g": "ca", "s": 1732.228446}, {"d": "2026-07-18", "g": "dach", "s": 1066.824308}, {"d": "2026-07-18", "g": "fr", "s": 735.479672}, {"d": "2026-07-18", "g": "gb", "s": 3878.924743}, {"d": "2026-07-18", "g": "latam", "s": 2729.840479}, {"d": "2026-07-18", "g": "us", "s": 44522.471855}, {"d": "2026-07-18", "g": "ww", "s": 3198.144585}, {"d": "2026-07-19", "g": "au", "s": 5711.267657}, {"d": "2026-07-19", "g": "br", "s": 1017.558873}, {"d": "2026-07-19", "g": "ca", "s": 1644.118375}, {"d": "2026-07-19", "g": "dach", "s": 1225.918297}, {"d": "2026-07-19", "g": "fr", "s": 703.582798}, {"d": "2026-07-19", "g": "gb", "s": 4514.737987}, {"d": "2026-07-19", "g": "latam", "s": 1933.639432}, {"d": "2026-07-19", "g": "us", "s": 40694.264949}, {"d": "2026-07-19", "g": "ww", "s": 3579.19908}];
+
+// ── LABELS ──
+const CD={AgentHR:'Agent: HR',AgentIT:'Agent: IT',AgentLegal:'Agent: Legal',AgentMarketing:'Agent: Marketing',AgentWorkBuilder:'Agent: Work Builder',AgentWork:'Agent: Work',AgentComp:'Agent: Comp',AgentFinance:'Agent: Finance',AgentConstruction:'Agent: Construction',AgentReal:'Agent: Real Estate',AgentNoteTaker:'Agent: Note Taker',Calendar:'Calendar',Competitors:'Competitors',Gantt:'Gantt',General:'General',Logistic:'Logistic',Marketing:'Marketing',Campaigns:'Campaigns',ProjMgmt:'Project Mgmt',Task:'Task',ToDo:'To Do',Brand:'Brand'};
+const GD={au:'🇦🇺 Australia',br:'🇧🇷 Brazil',ca:'🇨🇦 Canada',dach:'🇩🇪 DACH',eu1:'EU1',fr:'🇫🇷 France',gb:'🇬🇧 GB',latam:'🌎 LATAM',row:'🌐 ROW',us:'🇺🇸 US',ww:'WW'};
+
+// ── BUDGETS for current month (injected by skill) ──
+const BUDGET_C={"ProjMgmt": 794713, "Competitors": 635770, "General": 176603, "Task": 317885, "Marketing": 247244, "Gantt": 211923, "Calendar": 211923, "ToDo": 176603, "Logistic": 105962, "Canada": 123622, "France": 105962, "DACH": 123622, "Brazil": 123622, "LATAM": 176603, "AgentWork": 93496, "AgentIT": 43631, "AgentHR": 155826, "AgentLegal": 99729, "AgentMarketing": 62330, "AgentFinance": 31165, "AgentRealEstate": 31165, "AgentNoteTaker": 31165, "AgentConstruction": 31165, "AgentNew": 43631};
+const BUDGET_G={"us": 2724877, "gb": 353206, "au": 194263, "ca": 123622, "fr": 105962, "dach": 123622, "br": 123622, "latam": 176603, "ww": 229584};
+
+const TOTAL_BUDGET=4155360;
+const MONTH='2026-07'; const DAYS=31;
+
+const AGENT_KEYS=new Set(['AgentHR','AgentIT','AgentLegal','AgentMarketing','AgentWorkBuilder','AgentWork','AgentComp','AgentFinance','AgentConstruction','AgentReal','AgentNoteTaker']);
+
+function fmt(n){return'$'+Math.round(n).toLocaleString();}
+function bucket(ds){const w=new Date(ds+'T12:00:00Z').getUTCDay();return w===0?'sun':w===6?'sat':w===5?'fri':'wd';}
+
+function computeRR(daySpend){
+  const today=new Date().toISOString().slice(0,10);
+  const todayN=parseInt(today.slice(8));
+  const mtd=Object.values(daySpend).reduce((a,b)=>a+b,0);
+  const reps={};
+  for(let off=1;off<=21;off++){
+    const d=new Date(today+'T12:00:00Z'); d.setUTCDate(d.getUTCDate()-off);
+    const ds=d.toISOString().slice(0,10);
+    if(ds<MONTH+'-01') break;
+    const b=bucket(ds);
+    if(!(b in reps)&&ds in daySpend) reps[b]=daySpend[ds];
+    if(Object.keys(reps).length===4) break;
+  }
+  ['wd','fri','sat','sun'].forEach(b=>{if(!(b in reps))reps[b]=0;});
+  const maxDay=Math.min(DAYS,31);
+  let rem=0;
+  for(let d=todayN+1;d<=maxDay;d++){
+    const ds=MONTH+'-'+String(d).padStart(2,'0');
+    rem+=reps[bucket(ds)];
+  }
+  const recent=Object.entries(daySpend).filter(([k])=>k<today).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,7).map(([,v])=>v);
+  const daily=recent.length?recent.reduce((a,b)=>a+b,0)/recent.length:0;
+  return{mtd,projected:mtd+rem,daily};
+}
+
+function aggByKey(rows,key){
+  const r={};
+  for(const row of rows){
+    const k=row[key];const ds=row.d;
+    if(!r[k])r[k]={};
+    r[k][ds]=(r[k][ds]||0)+row.s;
+  }
+  return r;
+}
+
+function makeTile(i,pct,budget){
+  let budgetBlock='';
+  let barPct=pct;
+  if(budget){
+    const budgetPct=Math.round(i.mtd/budget*100);
+    barPct=Math.min(100,budgetPct);
+    budgetBlock=`<div class="tile-budget">Budget: <b>${fmt(budget)}</b></div>`;
+  }
+  return`<div class="tile">
+    <div class="tile-name">${i.label}</div>
+    <div class="tile-mtd">${fmt(i.mtd)}</div>
+    <div class="tile-proj">Month's RR: <b>${fmt(i.projected)}</b></div>
+    <div class="tile-daily">~${fmt(i.daily)}/day</div>
+    ${budgetBlock}
+    <div class="tile-bar-bg"><div class="tile-bar-fill" style="width:${barPct}%;background:var(--blue)"></div></div>
+  </div>`;
+}
+
+function renderView(panelId,byKey,labels,splitAgents,budgetMap){
+  const panel=document.getElementById(panelId);
+  const items=[];
+  for(const[k,ds] of Object.entries(byKey)){
+    const{mtd,projected,daily}=computeRR(ds);
+    if(mtd<5)continue;
+    items.push({k,label:labels[k]||k,mtd,projected,daily,hide:k==='Other'});
+  }
+  items.sort((a,b)=>b.mtd-a.mtd);
+  const totMTD=items.reduce((s,i)=>s+i.mtd,0);
+  const totProj=items.reduce((s,i)=>s+i.projected,0);
+  const today=new Date().toISOString().slice(0,10);
+  const todayN=parseInt(today.slice(8));
+  const elapsed=Math.round(todayN/DAYS*100);
+  const pct=Math.min(100,elapsed);
+  const budgetSummary=splitAgents?`<div class="s-item"><div class="s-label">Total SEM Budget</div><div class="s-val">${fmt(TOTAL_BUDGET)}</div><div class="s-sub">Proj: ${Math.round(totProj/TOTAL_BUDGET*100)}% of budget</div></div>`:'';
+  let html=splitAgents?`<div class="section-label" style="margin-top:0">📊 Total SEM</div><div class="summary">
+    <div class="s-item"><div class="s-label">MTD Spend</div><div class="s-val">${fmt(totMTD)}</div><div class="s-sub">${MONTH.slice(5).replace('-0','-').replace('-','/')} 1–${todayN}</div></div>
+    <div class="s-item"><div class="s-label">Month's RR</div><div class="s-val">${fmt(totProj)}</div><div class="s-sub">Day-of-week projection</div></div>
+    ${budgetSummary}
+    <div class="s-item"><div class="s-label">Month Progress</div><div class="s-val">${todayN}/${DAYS}</div><div class="s-sub">${elapsed}% elapsed</div></div>
+  </div>`:'';;
+  if(splitAgents){
+    const agents=items.filter(i=>AGENT_KEYS.has(i.k)&&!i.hide);
+    const rest=items.filter(i=>!AGENT_KEYS.has(i.k)&&!i.hide);
+    if(agents.length){
+      html+=`<div class="section-label">🤖 Agents</div><div class="tiles">`;
+      agents.forEach(i=>html+=makeTile(i,pct,budgetMap?budgetMap[i.k]:null));
+      html+='</div>';
+    }
+    if(rest.length){
+      html+=`<div class="section-label">📂 Clusters</div><div class="tiles">`;
+      rest.forEach(i=>html+=makeTile(i,pct,budgetMap?budgetMap[i.k]:null));
+      html+='</div>';
+    }
+  } else {
+    html+=`<div class="tiles">`;
+    items.filter(i=>!i.hide).forEach(i=>html+=makeTile(i,pct,budgetMap?budgetMap[i.k]:null));
+    html+='</div>';
+  }
+  panel.innerHTML=html;
+}
+
+function showTab(name){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['cluster','geo'][i]===name));
+  ['cluster','geo'].forEach(n=>{document.getElementById(n+'-panel').classList.toggle('active',n===name);});
+}
+
+// ── KREMER SQL (for live refresh Jul 15+) ──
+const CASE_CLUSTER=`CASE SPLIT_PART(LOWER(CAMPAIGN),'-',6)
+WHEN 'comp_asana' THEN 'Competitors' WHEN 'comp_trello' THEN 'Competitors' WHEN 'comp_exp' THEN 'Competitors'
+WHEN 'comp1' THEN 'Competitors' WHEN 'comp_comp2' THEN 'Competitors' WHEN 'comp_clickup' THEN 'Competitors'
+WHEN 'comp_jira' THEN 'Competitors' WHEN 'comp_microsoft_pm' THEN 'Competitors' WHEN 'comp_microsoft_teams' THEN 'Competitors'
+WHEN 'comp_slack' THEN 'Competitors' WHEN 'comp_smartsheet' THEN 'Competitors' WHEN 'comp_basecamp' THEN 'Competitors'
+WHEN 'comp_notion' THEN 'Competitors' WHEN 'comp_wrike' THEN 'Competitors' WHEN 'comp_all' THEN 'Competitors'
+WHEN 'project_management' THEN 'ProjMgmt' WHEN 'project_management_free' THEN 'ProjMgmt'
+WHEN 'project_management_lt' THEN 'ProjMgmt' WHEN 'project_templates' THEN 'ProjMgmt'
+WHEN 'project_tracking' THEN 'ProjMgmt' WHEN 'projectgen' THEN 'ProjMgmt'
+WHEN 'task_management' THEN 'Task' WHEN 'taskgen' THEN 'Task' WHEN 'task_free' THEN 'Task'
+WHEN 'to_do_list' THEN 'ToDo' WHEN 'checklist' THEN 'ToDo'
+WHEN 'gantt' THEN 'Gantt' WHEN 'gantt_free' THEN 'Gantt' WHEN 'gantt_template' THEN 'Gantt' WHEN 'timeline' THEN 'Gantt'
+WHEN 'calendar' THEN 'Calendar' WHEN 'shared_calendar' THEN 'Calendar' WHEN 'schedule' THEN 'Calendar'
+WHEN 'marketing' THEN 'Marketing' WHEN 'marketing_templates' THEN 'Marketing' WHEN 'social_media' THEN 'Marketing'
+WHEN 'marketing_calendar' THEN 'Marketing'
+WHEN 'workflow' THEN 'General' WHEN 'management' THEN 'General' WHEN 'wide_terms' THEN 'General'
+WHEN 'dashboards' THEN 'General' WHEN 'kanban' THEN 'General' WHEN 'general' THEN 'General'
+WHEN 'construction_management' THEN 'Logistic' WHEN 'construction_gmao' THEN 'Logistic'
+WHEN 'order_mgmt' THEN 'Logistic' WHEN 'production_gen' THEN 'Logistic'
+WHEN 'agent_aihr' THEN 'AgentHR'
+WHEN 'agent_aiit' THEN 'AgentIT'
+WHEN 'agent_aimarketing' THEN 'AgentMarketing'
+WHEN 'agent_aicomp' THEN 'AgentComp'
+WHEN 'agent_aiwork_builder' THEN 'AgentWorkBuilder'
+WHEN 'agent_aiwork' THEN 'AgentWork'
+WHEN 'agent_ailegal' THEN 'AgentLegal' WHEN 'agent_ailegal_contract' THEN 'AgentLegal'
+WHEN 'agent_aiconstruction' THEN 'AgentConstruction'
+WHEN 'agent_aireal_estate' THEN 'AgentReal'
+WHEN 'agent_aifinance' THEN 'AgentFinance'
+WHEN 'agent_ainote_taker' THEN 'AgentNoteTaker'
+WHEN 'brand_crm' THEN 'Brand'
+ELSE 'Other' END`;
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+async function kremerQuery(q){
+  try{
+    const r1=await window.cowork.callMcpTool('mcp__Kremer__data-expert-agent',{question:q,async:true});
+    const jd=r1.structuredContent??JSON.parse(r1.content[0].text);
+    const jobId=jd.jobId;
+    for(let i=0;i<25;i++){
+      await sleep(6000);
+      const r2=await window.cowork.callMcpTool('mcp__Kremer__check-query-status',{jobId});
+      const sd=r2.structuredContent??JSON.parse(r2.content[0].text);
+      if(sd.status==='done'){
+        const m=sd.answer.match(/START_JSON[\s\n]*([\s\S]*?)[\s\n]*END_JSON/);
+        if(m)try{return JSON.parse(m[1]);}catch(e){console.error('JSON parse',e);}
+        return [];
+      }
+    }
+  }catch(e){console.error('Kremer',e);}
+  return [];
+}
+
+async function main(){
+  renderView('cluster-panel',aggByKey(HIST_C,'c'),CD,true,BUDGET_C);
+  renderView('geo-panel',aggByKey(HIST_G,'g'),GD,false,BUDGET_G);
+
+  const today=new Date().toISOString().slice(0,10);
+  const monthStart=MONTH+'-01';
+
+  // If today is still within the static data range, we're done
+  const lastStaticDate=HIST_C.length?HIST_C.map(r=>r.d).sort().pop():'';
+  if(today<=lastStaticDate||today>MONTH+'-31'){
+    document.getElementById('dot').classList.remove('loading');
+    document.getElementById('status-text').textContent=
+      today<=lastStaticDate?`Showing ${lastStaticDate} (complete)`:`${MONTH} final spend`;
+    return;
+  }
+
+  // Fetch live data from day after last static date to today
+  const FROM=new Date(lastStaticDate+'T12:00:00Z');
+  FROM.setUTCDate(FROM.getUTCDate()+1);
+  const fromStr=FROM.toISOString().slice(0,10);
+
+  const cQ=`Run this exact SQL and return ALL results as a JSON array between START_JSON and END_JSON markers (no extra text):
+SELECT TO_CHAR(DATE(CREATED_AT),'YYYY-MM-DD') as d,
+${CASE_CLUSTER} as c,
+ROUND(SUM(COST),2) as s
+FROM BIGBRAIN.L3.FACT_CAMPAIGN_MONITORING_DWH
+WHERE GROUPED_CHANNEL='SEM' AND BUSINESS_GOAL='performance_marketing' AND PRODUCT_DTR='work_management'
+AND DATE(CREATED_AT) BETWEEN '${fromStr}' AND CURRENT_DATE AND COST>0
+GROUP BY 1,2 ORDER BY 1,2`;
+
+  const gQ=`Run this exact SQL and return ALL results as a JSON array between START_JSON and END_JSON markers (no extra text):
+SELECT TO_CHAR(DATE(CREATED_AT),'YYYY-MM-DD') as d, SPLIT_PART(LOWER(CAMPAIGN),'-',1) as g, ROUND(SUM(COST),2) as s
+FROM BIGBRAIN.L3.FACT_CAMPAIGN_MONITORING_DWH
+WHERE GROUPED_CHANNEL='SEM' AND BUSINESS_GOAL='performance_marketing' AND PRODUCT_DTR='work_management'
+AND DATE(CREATED_AT) BETWEEN '${fromStr}' AND CURRENT_DATE AND COST>0
+GROUP BY 1,2 ORDER BY 1,2`;
+
+  const [liveC,liveG]=await Promise.all([kremerQuery(cQ),kremerQuery(gQ)]);
+
+  if(liveC.length||liveG.length){
+    renderView('cluster-panel',aggByKey([...HIST_C,...liveC],'c'),CD,true,BUDGET_C);
+    renderView('geo-panel',aggByKey([...HIST_G,...liveG],'g'),GD,false,BUDGET_G);
+  }
+
+  const todayN=parseInt(today.slice(8));
+  document.getElementById('dot').classList.remove('loading');
+  document.getElementById('status-text').textContent=
+    `Live · ${MONTH.slice(5).replace('-0','').replace('-','/')} 1–${todayN} actual + projection · ${new Date().toLocaleTimeString()}`;
+}
+
+main().catch(e=>{
+  console.error(e);
+  document.getElementById('dot').style.background='#ef4444';
+  document.getElementById('dot').classList.remove('loading');
+  document.getElementById('status-text').textContent='Error loading live data · showing static data only';
+});
+</script>
+</body>
+</html>
