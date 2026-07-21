@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>monday campaigns AI | AI-Powered Email Marketing</title>
+<meta name="description" content="monday campaigns puts AI at every step of your workflow — from spotting the right opportunity to hitting send — so your team ships faster, targets smarter, and optimizes without guessing.">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #111520;
+    --card: #141824;
+    --border: #1e2433;
+    --purple: #6c47ff;
+    --purple-light: #8a6bff;
+    --green: #00c875;
+    --white: #ffffff;
+    --grey: #8c93a8;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--white); font-family: var(--font); line-height: 1.6; }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,14,26,0.95); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+  }
+  .nav-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+  .nav-logo { text-decoration: none; font-size: 22px; font-weight: 800; color: var(--white); letter-spacing: -0.5px; }
+  .nav-logo span { color: var(--purple); }
+  .nav-links { display: flex; gap: 8px; list-style: none; }
+  .nav-links a {
+    color: var(--grey); text-decoration: none; font-size: 14px; font-weight: 500;
+    padding: 6px 14px; border-radius: 6px; transition: color 0.2s, background 0.2s;
+  }
+  .nav-links a:hover { color: var(--white); background: var(--border); }
+  .nav-links a.active { color: var(--white); }
+  .nav-cta {
+    background: var(--purple); color: var(--white); text-decoration: none;
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .nav-cta:hover { background: var(--purple-light); transform: translateY(-1px); }
+  .nav-right { display: flex; align-items: center; gap: 16px; }
+  .hamburger { display: none; background: none; border: none; color: var(--white); font-size: 22px; cursor: pointer; }
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .hamburger { display: block; }
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(180deg, #0d1122 0%, var(--bg) 100%);
+    padding: 100px 24px 80px;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+    width: 900px; height: 700px;
+    background: radial-gradient(ellipse, rgba(108,71,255,0.2) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner { max-width: 860px; margin: 0 auto; position: relative; }
+  .hero-badge {
+    display: inline-block; background: rgba(108,71,255,0.15); border: 1px solid rgba(108,71,255,0.3);
+    color: var(--purple-light); font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+    padding: 5px 14px; border-radius: 20px; margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-size: clamp(36px, 6vw, 64px); font-weight: 800; line-height: 1.1; letter-spacing: -1.5px;
+    background: linear-gradient(135deg, var(--white) 0%, var(--purple-light) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    margin-bottom: 24px;
+  }
+  .hero p {
+    font-size: clamp(16px, 2.5vw, 20px); color: var(--grey); max-width: 680px; margin: 0 auto 40px;
+  }
+  .hero-ctas { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--purple); color: var(--white); text-decoration: none;
+    padding: 14px 28px; border-radius: 10px; font-size: 16px; font-weight: 700;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 24px rgba(108,71,255,0.35);
+  }
+  .btn-primary:hover { background: var(--purple-light); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(108,71,255,0.5); }
+  .btn-secondary {
+    display: inline-flex; align-items: center;
+    background: transparent; color: var(--white); text-decoration: none;
+    padding: 14px 28px; border-radius: 10px; font-size: 16px; font-weight: 600;
+    border: 1px solid var(--border); transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--purple); background: rgba(108,71,255,0.08); }
+
+  /* SECTIONS */
+  .section { padding: 80px 24px; }
+  .section-alt { padding: 80px 24px; background: var(--bg2); }
+  .section-inner { max-width: 1200px; margin: 0 auto; }
+  .section-label {
+    color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-size: clamp(26px, 4vw, 42px); font-weight: 800; letter-spacing: -0.8px;
+    margin-bottom: 16px; line-height: 1.2;
+  }
+  .section-sub { color: var(--grey); font-size: 17px; max-width: 560px; margin-bottom: 48px; }
+
+  /* AI AGENT CARDS */
+  .agents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)); gap: 24px; }
+  @media (max-width: 600px) { .agents-grid { grid-template-columns: 1fr; } }
+  .agent-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-left: 4px solid var(--purple);
+    border-radius: 14px; padding: 32px 36px;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .agent-card::before {
+    content: '';
+    position: absolute; top: 0; right: 0;
+    width: 200px; height: 200px;
+    background: radial-gradient(ellipse at top right, rgba(108,71,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .agent-card:hover {
+    border-color: var(--purple);
+    border-left-color: var(--purple-light);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 40px rgba(108,71,255,0.18);
+  }
+  .agent-icon { font-size: 36px; margin-bottom: 16px; }
+  .agent-badge {
+    display: inline-block; background: rgba(0,200,117,0.1); border: 1px solid rgba(0,200,117,0.25);
+    color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: 0.8px;
+    padding: 4px 12px; border-radius: 20px; margin-bottom: 14px;
+  }
+  .agent-title { font-size: 22px; font-weight: 800; margin-bottom: 12px; }
+  .agent-desc { color: var(--grey); font-size: 15px; line-height: 1.7; }
+
+  /* WORKFLOW TIMELINE */
+  .workflow-wrap { padding: 80px 24px; }
+  .workflow-inner { max-width: 1200px; margin: 0 auto; }
+  .workflow-steps {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    position: relative;
+    margin-top: 48px;
+  }
+  .workflow-steps::before {
+    content: '';
+    position: absolute;
+    top: 36px; left: calc(10% + 18px); right: calc(10% + 18px);
+    height: 2px;
+    background: linear-gradient(90deg, var(--purple) 0%, var(--purple-light) 100%);
+    opacity: 0.4;
+  }
+  .workflow-step {
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; padding: 0 12px;
+    position: relative;
+  }
+  .step-number {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: var(--card); border: 2px solid var(--purple);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 20px; position: relative; z-index: 1;
+    flex-shrink: 0;
+    box-shadow: 0 0 20px rgba(108,71,255,0.25);
+  }
+  .step-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--white); }
+  .step-desc { font-size: 13px; color: var(--grey); line-height: 1.5; }
+  @media (max-width: 768px) {
+    .workflow-steps { grid-template-columns: 1fr; gap: 24px; }
+    .workflow-steps::before { display: none; }
+    .workflow-step { flex-direction: row; text-align: left; gap: 20px; align-items: flex-start; }
+    .step-number { flex-shrink: 0; }
+  }
+
+  /* COMPARISON TABLE */
+  .table-section { padding: 80px 24px; background: var(--bg2); }
+  .table-inner { max-width: 1000px; margin: 0 auto; }
+  .compare-table {
+    width: 100%; border-collapse: collapse; margin-top: 40px;
+    font-size: 14px;
+  }
+  .compare-table th {
+    padding: 16px 20px; text-align: left;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--grey);
+  }
+  .compare-table th:nth-child(2) { color: var(--purple-light); background: rgba(108,71,255,0.08); }
+  .compare-table td {
+    padding: 16px 20px;
+    border: 1px solid var(--border);
+    color: var(--grey); vertical-align: top;
+  }
+  .compare-table td:first-child { color: var(--white); font-weight: 500; }
+  .compare-table td:nth-child(2) {
+    background: rgba(108,71,255,0.04);
+    color: var(--white);
+  }
+  .compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .compare-table tr:hover td:nth-child(2) { background: rgba(108,71,255,0.08); }
+  .check { color: var(--green); font-weight: 700; }
+  .cross { color: #ff5c5c; }
+  @media (max-width: 600px) {
+    .compare-table { font-size: 12px; }
+    .compare-table th, .compare-table td { padding: 12px 14px; }
+  }
+
+  /* TRUST CARDS */
+  .trust-section { padding: 80px 24px; }
+  .trust-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px; margin-top: 40px;
+  }
+  .trust-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .trust-card:hover { border-color: rgba(108,71,255,0.3); transform: translateY(-2px); }
+  .trust-icon { font-size: 24px; margin-bottom: 12px; }
+  .trust-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .trust-desc { color: var(--grey); font-size: 13px; line-height: 1.6; }
+
+  /* FAQ */
+  .faq-section { padding: 80px 24px; background: var(--bg2); }
+  .faq-inner { max-width: 800px; margin: 0 auto; }
+  .faq-list { margin-top: 40px; display: flex; flex-direction: column; gap: 16px; }
+  .faq-item {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+  }
+  .faq-question {
+    padding: 20px 24px;
+    font-size: 16px; font-weight: 600; color: var(--white);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    user-select: none;
+  }
+  .faq-question::after {
+    content: '+'; color: var(--purple); font-size: 22px; font-weight: 300;
+    flex-shrink: 0; transition: transform 0.2s;
+  }
+  .faq-item.open .faq-question::after { transform: rotate(45deg); }
+  .faq-answer {
+    padding: 0 24px; max-height: 0; overflow: hidden;
+    color: var(--grey); font-size: 15px; line-height: 1.7;
+    transition: max-height 0.3s ease, padding 0.3s;
+  }
+  .faq-item.open .faq-answer {
+    max-height: 200px; padding: 0 24px 20px;
+  }
+
+  /* FINAL CTA */
+  .final-cta {
+    padding: 100px 24px; text-align: center;
+    background: linear-gradient(180deg, var(--bg) 0%, #0d1028 100%);
+    position: relative; overflow: hidden;
+  }
+  .final-cta::before {
+    content: '';
+    position: absolute; bottom: -200px; left: 50%; transform: translateX(-50%);
+    width: 700px; height: 500px;
+    background: radial-gradient(ellipse, rgba(108,71,255,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .final-cta-inner { max-width: 640px; margin: 0 auto; position: relative; }
+  .final-cta h2 { font-size: clamp(28px, 4vw, 44px); font-weight: 800; letter-spacing: -1px; margin-bottom: 16px; }
+  .final-cta p { color: var(--grey); font-size: 17px; margin-bottom: 40px; }
+  .final-cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+  /* FOOTER */
+  footer {
+    background: var(--bg2); border-top: 1px solid var(--border);
+    padding: 32px 24px; text-align: center;
+  }
+  footer a { color: var(--grey); text-decoration: none; font-size: 14px; }
+  footer a:hover { color: var(--white); }
+  .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+  .footer-logo { font-size: 18px; font-weight: 800; color: var(--white); }
+  .footer-logo span { color: var(--purple); }
+  .footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+  .footer-copy { color: var(--grey); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="https://monday.com/crm/campaigns" class="nav-logo">monday <span>campaigns</span></a>
+    <button class="hamburger" aria-label="Menu">☰</button>
+    <ul class="nav-links">
+      <li><a href="/dashboards/campaigns-features">Features</a></li>
+      <li><a href="/dashboards/campaigns-integrations">Integrations</a></li>
+      <li><a href="/dashboards/campaigns-ai" class="active">AI</a></li>
+      <li><a href="https://monday.com/crm/campaigns/pricing">Pricing</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="https://auth.monday.com/p/marketing_campaigns/users/sign_up_new" class="nav-cta">Get Started</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">AI-Powered Email Marketing</div>
+    <h1>AI that builds campaigns. Not just assists them.</h1>
+    <p>monday campaigns puts AI at every step of your workflow — from spotting the right opportunity to hitting send — so your team ships faster, targets smarter, and optimizes without guessing.</p>
+    <div class="hero-ctas">
+      <a href="https://auth.monday.com/p/marketing_campaigns/users/sign_up_new" class="btn-primary">Try it free →</a>
+      <a href="https://monday.com/crm/campaigns/pricing" class="btn-secondary">View pricing</a>
+    </div>
+  </div>
+</section>
+
+<!-- AI AGENTS -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-label">AI Agents</div>
+    <h2 class="section-title">Four AI agents. One complete workflow.</h2>
+    <p class="section-sub">Each agent owns a specific part of your campaign process — together, they handle it end to end.</p>
+    <div class="agents-grid">
+
+      <div class="agent-card">
+        <div class="agent-icon">🤖</div>
+        <div class="agent-badge">From idea to campaign in &lt; 1 min</div>
+        <div class="agent-title">Campaign Creation Agent</div>
+        <div class="agent-desc">Describe your goal in plain language. The Campaign Creation Agent builds a complete, on-brand email campaign in under 60 seconds — subject line, copy, design, and audience, all tailored to your brand kit. No prompting skill required.</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-icon">🔍</div>
+        <div class="agent-badge">Proactive, not reactive</div>
+        <div class="agent-title">AI Research Agent</div>
+        <div class="agent-desc">Your always-on campaign strategist. The Research Agent continuously monitors contact engagement patterns, market signals, and competitor activity to surface the highest-impact campaign opportunity at exactly the right time.</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-icon">💬</div>
+        <div class="agent-badge">Always in context</div>
+        <div class="agent-title">AI Assistant</div>
+        <div class="agent-desc">Embedded directly in your campaign editor — no tab switching. Ask it anything: "Make the subject line more urgent", "Why did click rates drop on the last send?", "Shorten this copy for mobile". It acts immediately.</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-icon">🎨</div>
+        <div class="agent-badge">One-time setup</div>
+        <div class="agent-title">AI Brand Kit</div>
+        <div class="agent-desc">During onboarding, AI scans your website and extracts your brand — colors, fonts, logo, and tone of voice. From that point on, every AI-generated campaign is automatically on-brand. You set it once and never think about it again.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- WORKFLOW TIMELINE -->
+<div class="workflow-wrap">
+  <div class="workflow-inner">
+    <div class="section-label">How It Works</div>
+    <h2 class="section-title">From signal to send — fully AI-powered</h2>
+    <p class="section-sub" style="margin-bottom: 0;">Five steps. Each one handled by AI. You just review and approve.</p>
+    <div class="workflow-steps">
+      <div class="workflow-step">
+        <div class="step-number">1️⃣</div>
+        <div class="step-title">Spot</div>
+        <div class="step-desc">Research Agent identifies the best campaign opportunity from your engagement data</div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-number">2️⃣</div>
+        <div class="step-title">Build</div>
+        <div class="step-desc">Creation Agent generates the full campaign from a single prompt in &lt; 60 seconds</div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-number">3️⃣</div>
+        <div class="step-title">Target</div>
+        <div class="step-desc">AI segments your audience for maximum relevance and deliverability</div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-number">4️⃣</div>
+        <div class="step-title">Send</div>
+        <div class="step-desc">AI recommends the optimal send time based on your audience's engagement patterns</div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-number">5️⃣</div>
+        <div class="step-title">Improve</div>
+        <div class="step-desc">AI analyzes results and tells you exactly what to change for the next campaign</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARISON TABLE -->
+<div class="table-section">
+  <div class="table-inner">
+    <div class="section-label">Comparison</div>
+    <h2 class="section-title">monday campaigns AI vs generic AI</h2>
+    <p style="color: var(--grey); font-size: 16px; margin-bottom: 0;">Why purpose-built AI beats copy-pasting into ChatGPT.</p>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th style="width: 40%">Capability</th>
+          <th style="width: 30%">monday campaigns AI</th>
+          <th style="width: 30%">Generic AI (ChatGPT, Gemini, etc.)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Knows your brand kit automatically</td>
+          <td><span class="check">✅</span> Built-in</td>
+          <td><span class="cross">❌</span> You paste it every prompt</td>
+        </tr>
+        <tr>
+          <td>Works from live contact &amp; engagement data</td>
+          <td><span class="check">✅</span> Real-time</td>
+          <td><span class="cross">❌</span> Static input only</td>
+        </tr>
+        <tr>
+          <td>One-prompt → complete campaign</td>
+          <td><span class="check">✅</span> Copy + design + audience</td>
+          <td><span class="cross">❌</span> Copy only</td>
+        </tr>
+        <tr>
+          <td>Suggests campaigns proactively</td>
+          <td><span class="check">✅</span> Research Agent</td>
+          <td><span class="cross">❌</span> You have to ask</td>
+        </tr>
+        <tr>
+          <td>Revenue attribution built in</td>
+          <td><span class="check">✅</span> Email → conversion tracking</td>
+          <td><span class="cross">❌</span> Not available</td>
+        </tr>
+        <tr>
+          <td>Embedded in the editor</td>
+          <td><span class="check">✅</span> No tab switching</td>
+          <td><span class="cross">❌</span> Copy/paste workflow</td>
+        </tr>
+        <tr>
+          <td>No prompt engineering required</td>
+          <td><span class="check">✅</span> Just describe your goal</td>
+          <td><span class="cross">❌</span> Requires prompting skill</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TRUST SECTION -->
+<section class="trust-section">
+  <div class="section-inner">
+    <div class="section-label">AI Trust &amp; Safety</div>
+    <h2 class="section-title">AI you can trust with your brand</h2>
+    <p class="section-sub">Built-in guardrails so AI always works for you — not around you.</p>
+    <div class="trust-grid">
+      <div class="trust-card">
+        <div class="trust-icon">🛡️</div>
+        <div class="trust-title">Brand Guardrails</div>
+        <div class="trust-desc">AI generates within your brand kit. It never goes off-palette, off-font, or off-tone.</div>
+      </div>
+      <div class="trust-card">
+        <div class="trust-icon">👁️</div>
+        <div class="trust-title">Human in the Loop</div>
+        <div class="trust-desc">Every AI-generated campaign is fully editable before sending. You always have final say.</div>
+      </div>
+      <div class="trust-card">
+        <div class="trust-icon">✅</div>
+        <div class="trust-title">Compliance Built In</div>
+        <div class="trust-desc">AI emails automatically include GDPR-compliant unsubscribe footers and honor CAN-SPAM requirements.</div>
+      </div>
+      <div class="trust-card">
+        <div class="trust-icon">🔒</div>
+        <div class="trust-title">Your Data Stays Yours</div>
+        <div class="trust-desc">AI learns from your campaigns only. Your contacts and content are never used to train shared models.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<div class="faq-section">
+  <div class="faq-inner">
+    <div class="section-label">FAQ</div>
+    <h2 class="section-title" style="margin-bottom: 0;">Common questions about AI</h2>
+    <div class="faq-list">
+
+      <div class="faq-item">
+        <div class="faq-question">Do I need to know how to write AI prompts?</div>
+        <div class="faq-answer">No. Just describe your goal in plain language — "Send a re-engagement campaign to inactive subscribers" — and the AI handles the rest. No prompt engineering required.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">Can I edit what the AI creates?</div>
+        <div class="faq-answer">Absolutely. Every AI-generated campaign opens in the drag-and-drop editor so you can tweak copy, swap images, or adjust layout before sending.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">Is my data used to train AI models?</div>
+        <div class="faq-answer">No. Your campaign data, contacts, and engagement history are used only to power your own AI features. They are never shared with or used to train any third-party or shared model.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">Is AI available on all plans?</div>
+        <div class="faq-answer">The AI Campaign Builder is available on all plans including Starter. The AI Research Agent and advanced AI optimization features are available on Standard and above.</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <div class="final-cta-inner">
+    <h2>See AI campaigns in action</h2>
+    <p>Go from idea to sent campaign in under a minute — start your free trial today.</p>
+    <div class="final-cta-btns">
+      <a href="https://auth.monday.com/p/marketing_campaigns/users/sign_up_new" class="btn-primary">Start 14-day free trial →</a>
+      <a href="https://monday.com/crm/campaigns" class="btn-secondary">Watch a demo</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">monday <span>campaigns</span></div>
+    <div class="footer-links">
+      <a href="/dashboards/campaigns-features">Features</a>
+      <a href="/dashboards/campaigns-integrations">Integrations</a>
+      <a href="/dashboards/campaigns-ai">AI</a>
+      <a href="https://monday.com/crm/campaigns/pricing">Pricing</a>
+      <a href="https://monday.com/crm/campaigns">Back to monday</a>
+    </div>
+    <div class="footer-copy">© 2025 monday.com Ltd. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+  // FAQ accordion
+  document.querySelectorAll('.faq-question').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.closest('.faq-item');
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+</script>
+
+</body>
+</html>

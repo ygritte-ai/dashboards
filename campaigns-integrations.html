@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>monday campaigns Integrations | Connect Your Marketing Stack</title>
+<meta name="description" content="monday campaigns plugs into your existing tools — so your contact data stays fresh, your workflows run automatically, and your team works without switching tabs.">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #111520;
+    --card: #141824;
+    --border: #1e2433;
+    --purple: #6c47ff;
+    --purple-light: #8a6bff;
+    --green: #00c875;
+    --white: #ffffff;
+    --grey: #8c93a8;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--white); font-family: var(--font); line-height: 1.6; }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,14,26,0.95); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+  }
+  .nav-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+  .nav-logo { text-decoration: none; font-size: 22px; font-weight: 800; color: var(--white); letter-spacing: -0.5px; }
+  .nav-logo span { color: var(--purple); }
+  .nav-links { display: flex; gap: 8px; list-style: none; }
+  .nav-links a {
+    color: var(--grey); text-decoration: none; font-size: 14px; font-weight: 500;
+    padding: 6px 14px; border-radius: 6px; transition: color 0.2s, background 0.2s;
+  }
+  .nav-links a:hover { color: var(--white); background: var(--border); }
+  .nav-links a.active { color: var(--white); }
+  .nav-cta {
+    background: var(--purple); color: var(--white); text-decoration: none;
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .nav-cta:hover { background: var(--purple-light); transform: translateY(-1px); }
+  .nav-right { display: flex; align-items: center; gap: 16px; }
+  .hamburger { display: none; background: none; border: none; color: var(--white); font-size: 22px; cursor: pointer; }
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .hamburger { display: block; }
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(180deg, #0d1122 0%, var(--bg) 100%);
+    padding: 100px 24px 80px;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+    width: 800px; height: 600px;
+    background: radial-gradient(ellipse, rgba(108,71,255,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner { max-width: 860px; margin: 0 auto; position: relative; }
+  .hero-badge {
+    display: inline-block; background: rgba(108,71,255,0.15); border: 1px solid rgba(108,71,255,0.3);
+    color: var(--purple-light); font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+    padding: 5px 14px; border-radius: 20px; margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-size: clamp(36px, 6vw, 64px); font-weight: 800; line-height: 1.1; letter-spacing: -1.5px;
+    background: linear-gradient(135deg, var(--white) 0%, var(--purple-light) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    margin-bottom: 24px;
+  }
+  .hero p {
+    font-size: clamp(16px, 2.5vw, 20px); color: var(--grey); max-width: 680px; margin: 0 auto 40px;
+  }
+  .hero-ctas { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--purple); color: var(--white); text-decoration: none;
+    padding: 14px 28px; border-radius: 10px; font-size: 16px; font-weight: 700;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 24px rgba(108,71,255,0.35);
+  }
+  .btn-primary:hover { background: var(--purple-light); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(108,71,255,0.5); }
+  .btn-secondary {
+    display: inline-flex; align-items: center;
+    background: transparent; color: var(--white); text-decoration: none;
+    padding: 14px 28px; border-radius: 10px; font-size: 16px; font-weight: 600;
+    border: 1px solid var(--border); transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--purple); background: rgba(108,71,255,0.08); }
+
+  /* FEATURED INTEGRATION */
+  .featured-wrap { padding: 64px 24px 0; }
+  .featured-wrap .section-inner { max-width: 1200px; margin: 0 auto; }
+  .featured-card {
+    background: var(--card); border: 1px solid var(--green);
+    border-radius: 16px; padding: 40px 48px;
+    display: flex; align-items: flex-start; gap: 28px;
+    box-shadow: 0 0 40px rgba(0,200,117,0.08);
+  }
+  .featured-icon { font-size: 40px; flex-shrink: 0; margin-top: 4px; }
+  .featured-badge {
+    display: inline-block; background: rgba(0,200,117,0.12); border: 1px solid rgba(0,200,117,0.3);
+    color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    padding: 4px 12px; border-radius: 20px; margin-bottom: 12px;
+  }
+  .featured-card h3 { font-size: 24px; font-weight: 800; margin-bottom: 12px; }
+  .featured-card p { color: var(--grey); font-size: 16px; line-height: 1.7; max-width: 640px; }
+  @media (max-width: 600px) {
+    .featured-card { flex-direction: column; padding: 28px 24px; }
+  }
+
+  /* SECTIONS */
+  .section { padding: 80px 24px; }
+  .section:nth-child(even) { background: var(--bg2); }
+  .section-inner { max-width: 1200px; margin: 0 auto; }
+  .section-label {
+    color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-size: clamp(26px, 4vw, 38px); font-weight: 800; letter-spacing: -0.8px;
+    margin-bottom: 40px; line-height: 1.2;
+  }
+
+  /* INTEGRATION CATEGORIES */
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 24px;
+  }
+  .category-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  }
+  .category-card:hover {
+    border-color: rgba(108,71,255,0.35);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .category-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 16px; font-weight: 700;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .category-tools { padding: 8px 0; }
+  .tool-row {
+    padding: 14px 24px;
+    border-bottom: 1px solid rgba(30,36,51,0.5);
+    display: flex; gap: 14px;
+  }
+  .tool-row:last-child { border-bottom: none; }
+  .tool-name { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+  .tool-desc { font-size: 13px; color: var(--grey); line-height: 1.5; }
+
+  /* DEVELOPER SECTION */
+  .dev-section {
+    padding: 80px 24px;
+    background: var(--bg2);
+  }
+  .dev-inner { max-width: 1200px; margin: 0 auto; }
+  .dev-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 48px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;
+  }
+  .dev-card h3 { font-size: 28px; font-weight: 800; margin-bottom: 16px; }
+  .dev-card > div:first-child p { color: var(--grey); font-size: 16px; line-height: 1.7; margin-bottom: 24px; }
+  .dev-features { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+  .dev-feature-pill {
+    background: rgba(108,71,255,0.1); border: 1px solid rgba(108,71,255,0.25);
+    color: var(--purple-light); font-size: 13px; font-weight: 600;
+    padding: 5px 14px; border-radius: 20px;
+  }
+  .dev-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn-outline {
+    display: inline-flex; align-items: center;
+    background: transparent; color: var(--purple-light); text-decoration: none;
+    padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600;
+    border: 1px solid rgba(108,71,255,0.4);
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-outline:hover { border-color: var(--purple); background: rgba(108,71,255,0.1); }
+  .dev-visual {
+    background: #0d1028; border: 1px solid var(--border); border-radius: 12px; padding: 28px;
+    font-family: 'Courier New', monospace; font-size: 13px; color: #8a9ec0; line-height: 1.8;
+  }
+  .dev-visual .comment { color: #4a5568; }
+  .dev-visual .keyword { color: var(--purple-light); }
+  .dev-visual .string { color: var(--green); }
+  @media (max-width: 768px) {
+    .dev-card { grid-template-columns: 1fr; padding: 28px 24px; }
+  }
+
+  /* FINAL CTA */
+  .final-cta {
+    padding: 100px 24px; text-align: center;
+    background: linear-gradient(180deg, var(--bg) 0%, #0d1028 100%);
+    position: relative; overflow: hidden;
+  }
+  .final-cta::before {
+    content: '';
+    position: absolute; bottom: -200px; left: 50%; transform: translateX(-50%);
+    width: 700px; height: 500px;
+    background: radial-gradient(ellipse, rgba(108,71,255,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .final-cta-inner { max-width: 640px; margin: 0 auto; position: relative; }
+  .final-cta h2 { font-size: clamp(28px, 4vw, 44px); font-weight: 800; letter-spacing: -1px; margin-bottom: 16px; }
+  .final-cta p { color: var(--grey); font-size: 17px; margin-bottom: 40px; }
+  .final-cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+  /* FOOTER */
+  footer {
+    background: var(--bg2); border-top: 1px solid var(--border);
+    padding: 32px 24px; text-align: center;
+  }
+  footer a { color: var(--grey); text-decoration: none; font-size: 14px; }
+  footer a:hover { color: var(--white); }
+  .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+  .footer-logo { font-size: 18px; font-weight: 800; color: var(--white); }
+  .footer-logo span { color: var(--purple); }
+  .footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+  .footer-copy { color: var(--grey); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="https://monday.com/crm/campaigns" class="nav-logo">monday <span>campaigns</span></a>
+    <button class="hamburger" aria-label="Menu">☰</button>
+    <ul class="nav-links">
+      <li><a href="/dashboards/campaigns-features">Features</a></li>
+      <li><a href="/dashboards/campaigns-integrations" class="active">Integrations</a></li>
+      <li><a href="/dashboards/campaigns-ai">AI</a></li>
+      <li><a href="https://monday.com/crm/campaigns/pricing">Pricing</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="https://auth.monday.com/p/marketing_campaigns/users/sign_up_new" class="nav-cta">Get Started</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">Integrations</div>
+    <h1>Connect your stack. Send smarter.</h1>
+    <p>monday campaigns plugs into your existing tools — so your contact data stays fresh, your workflows run automatically, and your team works without switching tabs.</p>
+    <div class="hero-ctas">
+      <a href="https://auth.monday.com/p/marketing_campaigns/users/sign_up_new" class="btn-primary">Get started free →</a>
+      <a href="https://monday.com/crm/campaigns/pricing" class="btn-secondary">View pricing</a>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED: monday CRM -->
+<div class="featured-wrap">
+  <div class="section-inner">
+    <div class="featured-card">
+      <div class="featured-icon">🔗</div>
+      <div>
+        <div class="featured-badge">Built-in • Zero setup</div>
+        <h3>monday CRM — native integration</h3>
+        <p>monday campaigns is built into the monday platform. When you add monday CRM, contact data syncs automatically and campaign engagement appears in your contact records. No setup, no mapping, no manual exports — it just works.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INTEGRATION CATEGORIES -->
+<section class="section" style="padding-top: 64px;">
+  <div class="section-inner">
+    <div class="section-label">Integrations</div>
+    <h2 class="section-title">Your entire marketing stack, connected</h2>
+    <div class="categories-grid">
+
+      <!-- Email Infrastructure -->
+      <div class="category-card">
+        <div class="category-header">📧 Email Infrastructure</div>
+        <div class="category-tools">
+          <div class="tool-row">
+            <div>
+              <div class="tool-name">SendGrid</div>
+              <div class="tool-desc">Enterprise delivery backbone. 98–99% inbox placement with DKIM, SPF, DMARC authentication built in.</div>
+            </div>
+          </div>
+          <div class="tool-row">
+            <div>
+              <div class="tool-name">Gmail</div>
+              <div class="tool-desc">Send from your Gmail address for a personal sender experience. Replies land in your inbox.</div>
+            </div>
+          </div>
+          <div class="tool-row">
+            <div>
+              <div class="tool-name">Outlook / Microsoft 365</div>
+              <div class="tool-desc">Connect Microsoft email for team-wide sending and activity logging.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact & Form Capture -->
+      <div class="category-card">
+        <div class="category-header">📋 Contact &amp; Form Capture</div>
+        <div class="category-tools">
+          <div class="tool-row">
+            <div>
+              <div class="tool-name">monday WorkForms</div>
+              <div class="tool-desc">Embed signup forms anywhere. New submissions automatically join your campaign audience.</div>
+            </div>
+          </div>
+          <div class="tool-row">
+            <div>
+              <div class="tool-name">Typeform</div>
+              <div class="tool-desc">Connect Typeform responses to trigger welcome flows instantly when someone fills out a form.</div>
+            </div>
+          </div>
+          <div class="tool-row">
+            <div>
+              <div class="tool-name">SurveyMonkey</div>
+              <div class="tool-desc">Route survey respondents into targeted follow-up campaigns based on their answers.</div>
+            </div>
+          </div>
+          <div class="tool-row">
+            <div>
+              <div class="tool-name">Google Forms</div>
+              <div class="tool-desc">Any Google Form submission can trigger an automated campaign sequence.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Communication -->
+      <div class="category-card">
+        <div class="category-header">💬 Communication &amp; Collaboration</div>
+        <div class="category-tools">
+          <div class="tool-row">
+            <div>
+              <div class="tool-name">Slack</div>
+              <div class="tool-desc">Get campaign performance alerts in your team channels — open rate milestones, campaign sent confirmations.</div>
+            </div>
+          </div>
+          <div class="tool-row">
+            <div>
+              <div class="tool-name">Microsoft Teams</div>
+              <div class="tool-desc">Route campaign alerts and approval requests directly into Teams channels.</div>
+            </div>
+          </div>
+          <div class="tool-row">
+            <div>
+              <div class="tool-name">Zoom</div>
+              <div class="tool-desc">Log Zoom webinar attendance and trigger post-event nurture emails automatically.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Marketing & Advertising -->
+      <div class="category-card">
+        <div class="category-header">📣 Marketing &amp; Advertising</div>
+        <div class="category-tools">
+          <div class="tool-row">
+            <div>
+              <div class="tool-name">Meta Ads</div>
+              <div class="tool-desc">Close the loop between paid ads and email. See which contacts came from Meta campaigns.</div>
+            </div>
+          </div>
+          <div class="tool-row">
+            <div>
+              <div class="tool-name">LinkedIn</div>
+              <div class="tool-desc">Import LinkedIn lead gen form submissions directly into campaign audiences.</div>
+            </div>
+          </div>
+          <div class="tool-row">
+            <div>
+              <div class="tool-name">Hootsuite</div>
+              <div class="tool-desc">Coordinate social post timing with your email campaigns from a unified calendar view.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics & Data -->
+      <div class="category-card">
+        <div class="category-header">📈 Analytics &amp; Data</div>
+        <div class="category-tools">
+          <div class="tool-row">
+            <div>
+              <div class="tool-name">Google Analytics 4</div>
+              <div class="tool-desc">Auto-append UTM parameters to campaign links. Track email-driven traffic in GA4.</div>
+            </div>
+          </div>
+          <div class="tool-row">
+            <div>
+              <div class="tool-name">Zapier</div>
+              <div class="tool-desc">Connect monday campaigns to 5,000+ apps with no-code Zapier workflows.</div>
+            </div>
+          </div>
+          <div class="tool-row">
+            <div>
+              <div class="tool-name">Make (Integromat)</div>
+              <div class="tool-desc">Build advanced multi-step automations between monday campaigns and any tool in your stack.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- File & Asset Management -->
+      <div class="category-card">
+        <div class="category-header">🗂️ File &amp; Asset Management</div>
+        <div class="category-tools">
+          <div class="tool-row">
+            <div>
+              <div class="tool-name">Google Drive</div>
+              <div class="tool-desc">Pull images, logos, and design assets from Drive directly into your email editor.</div>
+            </div>
+          </div>
+          <div class="tool-row">
+            <div>
+              <div class="tool-name">Dropbox</div>
+              <div class="tool-desc">Access approved brand assets stored in Dropbox without leaving the campaigns platform.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- DEVELOPER SECTION -->
+<div class="dev-section">
+  <div class="dev-inner">
+    <div class="section-label" style="margin-bottom: 12px;">For Developers</div>
+    <div class="dev-card">
+      <div>
+        <h3>🔧 Build your own integration</h3>
+        <p>monday campaigns exposes a full REST API and real-time Webhooks — so you can connect any tool, pipe campaign events to your data warehouse, or build custom automation.</p>
+        <div class="dev-features">
+          <span class="dev-feature-pill">REST API</span>
+          <span class="dev-feature-pill">Webhooks</span>
+          <span class="dev-feature-pill">500+ apps in marketplace</span>
+          <span class="dev-feature-pill">MCP protocol support</span>
+        </div>
+        <div class="dev-btns">
+          <a href="https://monday.com/crm/campaigns" class="btn-outline">Browse API docs</a>
+          <a href="https://monday.com/marketplace" class="btn-outline">View marketplace</a>
+        </div>
+      </div>
+      <div class="dev-visual">
+        <div class="comment">// Webhook event example</div>
+        <div><span class="keyword">POST</span> <span class="string">https://your-endpoint.io/webhook</span></div>
+        <br>
+        <div>{</div>
+        <div>&nbsp;&nbsp;<span class="string">"event"</span>: <span class="string">"campaign.sent"</span>,</div>
+        <div>&nbsp;&nbsp;<span class="string">"campaign_id"</span>: <span class="string">"cmp_8f3k2"</span>,</div>
+        <div>&nbsp;&nbsp;<span class="string">"recipients"</span>: <span class="keyword">4821</span>,</div>
+        <div>&nbsp;&nbsp;<span class="string">"open_rate"</span>: <span class="keyword">0.34</span>,</div>
+        <div>&nbsp;&nbsp;<span class="string">"timestamp"</span>: <span class="string">"2025-07-21T09:00:00Z"</span></div>
+        <div>}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <div class="final-cta-inner">
+    <h2>Start connecting in minutes.</h2>
+    <p>Your tools, your data, your workflows — all working together inside monday campaigns.</p>
+    <div class="final-cta-btns">
+      <a href="https://auth.monday.com/p/marketing_campaigns/users/sign_up_new" class="btn-primary">Get started free →</a>
+      <a href="https://monday.com/crm/campaigns" class="btn-secondary">Contact sales</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">monday <span>campaigns</span></div>
+    <div class="footer-links">
+      <a href="/dashboards/campaigns-features">Features</a>
+      <a href="/dashboards/campaigns-integrations">Integrations</a>
+      <a href="/dashboards/campaigns-ai">AI</a>
+      <a href="https://monday.com/crm/campaigns/pricing">Pricing</a>
+      <a href="https://monday.com/crm/campaigns">Back to monday</a>
+    </div>
+    <div class="footer-copy">© 2025 monday.com Ltd. All rights reserved.</div>
+  </div>
+</footer>
+
+</body>
+</html>
