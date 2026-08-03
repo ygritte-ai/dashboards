@@ -43,7 +43,7 @@ h1{font-size:18px;font-weight:700;margin-bottom:2px;}
 
 <div class="status">
   <div class="dot loading" id="dot"></div>
-  <span id="status-text">Showing Aug 1–1 · Loading live data…</span>
+  <span id="status-text">Showing Aug 1–2 · Loading live data…</span>
 </div>
 
 <div class="tabs">
@@ -56,8 +56,8 @@ h1{font-size:18px;font-weight:700;margin-bottom:2px;}
 
 <script>
 // ── STATIC DATA: month-to-date actuals (injected by skill) ──
-const HIST_C=[];
-const HIST_G=[];
+const HIST_C=[{"d": "2026-08-01", "c": "AgentConstruction", "s": 486.79423}, {"d": "2026-08-01", "c": "AgentFinance", "s": 600.779495}, {"d": "2026-08-01", "c": "AgentHR", "s": 4153.094559}, {"d": "2026-08-01", "c": "AgentIT", "s": 1115.137275}, {"d": "2026-08-01", "c": "AgentLegal", "s": 1131.042147}, {"d": "2026-08-01", "c": "AgentMarketing", "s": 2900.606195}, {"d": "2026-08-01", "c": "AgentNoteTaker", "s": 2125.238559}, {"d": "2026-08-01", "c": "AgentRealEstate", "s": 673.649606}, {"d": "2026-08-01", "c": "AgentWork", "s": 2653.690225}, {"d": "2026-08-01", "c": "Calendar", "s": 1526.564541}, {"d": "2026-08-01", "c": "Competitors", "s": 7059.171476}, {"d": "2026-08-01", "c": "Gantt", "s": 1181.091876}, {"d": "2026-08-01", "c": "General", "s": 1217.057378}, {"d": "2026-08-01", "c": "Logistic", "s": 1073.184137}, {"d": "2026-08-01", "c": "Marketing", "s": 1302.013456}, {"d": "2026-08-01", "c": "Other", "s": 4490.638775}, {"d": "2026-08-01", "c": "ProjMgmt", "s": 4779.220893}, {"d": "2026-08-01", "c": "Task", "s": 1722.532725}, {"d": "2026-08-01", "c": "ToDo", "s": 1149.222063}];
+const HIST_G=[{"d": "2026-08-01", "g": "au", "s": 1439.747341}, {"d": "2026-08-01", "g": "br", "s": 800.13614}, {"d": "2026-08-01", "g": "ca", "s": 1118.353261}, {"d": "2026-08-01", "g": "dach", "s": 2220.835574}, {"d": "2026-08-01", "g": "fr", "s": 226.185868}, {"d": "2026-08-01", "g": "gb", "s": 2840.860331}, {"d": "2026-08-01", "g": "latam", "s": 1805.620826}, {"d": "2026-08-01", "g": "us", "s": 28089.586209}, {"d": "2026-08-01", "g": "ww", "s": 2799.404061}];
 
 // ── LABELS ──
 const CD={AgentHR:'Agent: HR',AgentIT:'Agent: IT',AgentLegal:'Agent: Legal',AgentMarketing:'Agent: Marketing',AgentWorkBuilder:'Agent: Work Builder',AgentWork:'Agent: Work',AgentComp:'Agent: Comp',AgentFinance:'Agent: Finance',AgentConstruction:'Agent: Construction',AgentReal:'Agent: Real Estate',AgentNoteTaker:'Agent: Note Taker',Calendar:'Calendar',Competitors:'Competitors',Gantt:'Gantt',General:'General',Logistic:'Logistic',Marketing:'Marketing',Campaigns:'Campaigns',ProjMgmt:'Project Mgmt',Task:'Task',ToDo:'To Do',Brand:'Brand'};
