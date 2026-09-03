@@ -43,7 +43,7 @@ h1{font-size:18px;font-weight:700;margin-bottom:2px;}
 
 <div class="status">
   <div class="dot loading" id="dot"></div>
-  <span id="status-text">Showing Sep 1–1 · Loading live data…</span>
+  <span id="status-text">Showing Sep 1–2 · Loading live data…</span>
 </div>
 
 <div class="tabs">
@@ -56,8 +56,8 @@ h1{font-size:18px;font-weight:700;margin-bottom:2px;}
 
 <script>
 // ── STATIC DATA: month-to-date actuals (injected by skill) ──
-const HIST_C=[];
-const HIST_G=[];
+const HIST_C=[{"d": "2026-09-01", "c": "AgentFinance", "s": 1425.666781}, {"d": "2026-09-01", "c": "AgentHR", "s": 1715.588689}, {"d": "2026-09-01", "c": "AgentIT", "s": 983.43134}, {"d": "2026-09-01", "c": "AgentLegal", "s": 1074.857519}, {"d": "2026-09-01", "c": "AgentMarketing", "s": 2525.049821}, {"d": "2026-09-01", "c": "AgentNoteTaker", "s": 8570.781933}, {"d": "2026-09-01", "c": "AgentWork", "s": 5364.213393}, {"d": "2026-09-01", "c": "Calendar", "s": 6377.90792}, {"d": "2026-09-01", "c": "Competitors", "s": 42970.594683}, {"d": "2026-09-01", "c": "Gantt", "s": 16582.165994}, {"d": "2026-09-01", "c": "General", "s": 13760.165567}, {"d": "2026-09-01", "c": "Logistic", "s": 7844.105404}, {"d": "2026-09-01", "c": "Marketing", "s": 14256.623932}, {"d": "2026-09-01", "c": "Other", "s": 20455.429587}, {"d": "2026-09-01", "c": "ProjMgmt", "s": 26565.630279}, {"d": "2026-09-01", "c": "Task", "s": 11711.720488}, {"d": "2026-09-01", "c": "ToDo", "s": 7463.60473}];
+const HIST_G=[{"d": "2026-09-01", "g": "au", "s": 16440.366114}, {"d": "2026-09-01", "g": "br", "s": 6105.419575}, {"d": "2026-09-01", "g": "ca", "s": 5267.549828}, {"d": "2026-09-01", "g": "dach", "s": 2229.035147}, {"d": "2026-09-01", "g": "fr", "s": 4482.105458}, {"d": "2026-09-01", "g": "gb", "s": 17914.030474}, {"d": "2026-09-01", "g": "latam", "s": 9583.363577}, {"d": "2026-09-01", "g": "us", "s": 113435.027517}, {"d": "2026-09-01", "g": "ww", "s": 14190.64037}];
 
 // ── LABELS ──
 const CD={AgentHR:'Agent: HR',AgentIT:'Agent: IT',AgentLegal:'Agent: Legal',AgentMarketing:'Agent: Marketing',AgentWorkBuilder:'Agent: Work Agent',AgentWork:'Agent: Work',AgentComp:'Agent: Comp',AgentFinance:'Agent: Finance',AgentConstruction:'Agent: Construction',AgentReal:'Agent: Real Estate',AgentNoteTaker:'Agent: Note Taker',Calendar:'Calendar',Competitors:'Competitors',Gantt:'Gantt',General:'General',Logistic:'Logistic',Marketing:'Marketing',Campaigns:'Campaigns',ProjMgmt:'Project Mgmt',Task:'Task',ToDo:'To Do',Brand:'Brand'};
